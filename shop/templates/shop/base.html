@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{% block title %}AdanStore — The Precision Archive{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+    
+    <link rel="stylesheet" href="{% static 'shop/css/base.css' %}"/>
+    <link rel="stylesheet" href="{% static 'shop/css/layout.css' %}"/>
+    <link rel="stylesheet" href="{% static 'shop/css/components.css' %}"/>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <div id="cur"></div>
+    <div id="cur2"></div>
+
+    {% include 'shop/includes/trust_bar.html' %}
+    {% include 'shop/includes/navbar.html' %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'shop/includes/footer.html' %}
+    {% include 'shop/includes/sticky_cta.html' %}
+
+    <script src="{% static 'shop/js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
