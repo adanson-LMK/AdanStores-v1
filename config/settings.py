@@ -86,8 +86,12 @@ _db_env = os.getenv('DATABASE_URL', '').strip()
 if _db_env and '://' in _db_env:
     try:
         DATABASES['default'] = dj_database_url.parse(_db_env, conn_max_age=600, ssl_require=False)
+        # Forzar el uso del esquema propio para evitar errores de permisos en DigitalOcean
+        DATABASES['default']['OPTIONS'] = {
+            'options': '-c search_path=adanstore_schema,public'
+        }
     except Exception:
-        pass # Si la URL está mal formada, mantenemos SQLite para no romper el build
+        pass
 
 # CSRF Trusted Origins - Patrón comodín para DigitalOcean
 CSRF_TRUSTED_ORIGINS = [
