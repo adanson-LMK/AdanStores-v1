@@ -6,7 +6,10 @@ import dj_database_url
 # Cargar variables de entorno
 load_dotenv()
 
-# ... rest of code ...
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-key-change-me-in-prod')
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
