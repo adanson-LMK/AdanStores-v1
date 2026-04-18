@@ -93,7 +93,17 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.ondigitalocean.app',
     'http://localhost',
     'http://127.0.0.1'
-] + os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
+]
+env_origins = os.getenv('CSRF_TRUSTED_ORIGINS')
+if env_origins:
+    for origin in env_origins.split(','):
+        origin = origin.strip()
+        if origin:
+            # Asegurar que tenga esquema
+            if not origin.startswith(('http://', 'https://')):
+                CSRF_TRUSTED_ORIGINS.append(f'https://{origin}')
+            else:
+                CSRF_TRUSTED_ORIGINS.append(origin)
 
 
 

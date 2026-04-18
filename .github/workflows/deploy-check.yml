@@ -15,20 +15,20 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12' # Versión estable para el check
+        python-version: '3.11'
         
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install Django dj-database-url whitenoise python-dotenv cloudinary django-cloudinary-storage Markdown psycopg2-binary gunicorn
         
     - name: Run Django Check
       run: |
         python manage.py check
       env:
-        SECRET_KEY: "action-test-key"
+        SECRET_KEY: "action-test-key-safe-to-expose"
         DEBUG: "True"
-        # Mock de Cloudinary para que el check no falle
         CLOUDINARY_CLOUD_NAME: "test"
         CLOUDINARY_API_KEY: "test"
         CLOUDINARY_API_SECRET: "test"
+        ALLOWED_HOSTS: "localhost,127.0.0.1"
