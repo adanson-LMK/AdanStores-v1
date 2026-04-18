@@ -73,18 +73,15 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
-# Configuración por defecto (Local / Build Phase)
+# Usamos el respaldo (default) directamente dentro de config()
+# Si DATABASE_URL está vacía, usará SQLite automáticamente sin lanzar ValueError
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        conn_max_age=600,
+        ssl_require=False
+    )
 }
-
-# Solo si DATABASE_URL tiene un valor real (No vacío), sobreescribimos con PostgreSQL
-db_from_env = dj_database_url.config(conn_max_age=600, ssl_require=False)
-if db_from_env:
-    DATABASES['default'] = db_from_env
 
 # CSRF Trusted Origins - Patrón comodín para DigitalOcean
 CSRF_TRUSTED_ORIGINS = [
