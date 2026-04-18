@@ -129,26 +129,22 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// Cursor and animations
-const c1=document.getElementById('cur'), c2=document.getElementById('cur2');
-let mx=0,my=0,rx=0,ry=0;
-document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
-(function loop(){
-  if(c1 && c2){
-    c1.style.left=mx+'px';c1.style.top=my+'px';
-    rx+=(mx-rx)*.12;ry+=(my-ry)*.12;
-    c2.style.left=rx+'px';c2.style.top=ry+'px';
-  }
-  requestAnimationFrame(loop);
-})();
+// ── CUSTOM CURSOR UNIFICADO (INSTANTÁNEO) ──
+const cur = document.querySelector('#cur');
 
-document.querySelectorAll('a,button').forEach(el=>{
-  el.addEventListener('mouseenter',()=>document.body.classList.add('ha'));
-  el.addEventListener('mouseleave',()=>document.body.classList.remove('ha'));
-});
+if (cur) {
+  window.addEventListener('mousemove', (e) => {
+    // Posición inmediata sin GSAP para evitar el más mínimo delay
+    cur.style.left = e.clientX + 'px';
+    cur.style.top = e.clientY + 'px';
+    cur.style.opacity = '1'; // Mostrar solo después del primer movimiento
+  });
 
-const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});},{threshold:.1});
-document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+  document.querySelectorAll('a, button, .cat-card, .prod-card').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('ha'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('ha'));
+  });
+}
 
 function faq(btn){
   const ans=btn.nextElementSibling,open=btn.classList.contains('open');
@@ -156,3 +152,25 @@ function faq(btn){
   if(!open){btn.classList.add('open');ans.classList.add('open');}
 }
 window.faq = faq;
+
+// ── SCROLL TO TOP CON GSAP ──
+function scrollToTop() {
+  if (typeof gsap !== 'undefined') {
+    // Registramos ScrollToPlugin si no está registrado
+    gsap.registerPlugin(ScrollToPlugin);
+    
+    // Animación del Scroll
+    gsap.to(window, {
+      duration: 1,
+      scrollTo: 0,
+      ease: "expo.inOut"
+    });
+
+    // Animación visual del botón
+    gsap.fromTo(".sticky-top", { scale: 0.8 }, { scale: 1, duration: 0.4, ease: "back.out(1.7)" });
+  } else {
+    // Fallback si GSAP no carga
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+window.scrollToTop = scrollToTop;

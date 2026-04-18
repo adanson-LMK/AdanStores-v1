@@ -45,7 +45,7 @@
 .hero-slider { display: flex; transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1); height: 100%; }
 .hero-slide { min-width: 100%; height: 100%; position: relative; }
 .hero-nav { position: absolute; bottom: 32px; left: 32px; display: flex; gap: 8px; z-index: 20; }
-.hero-dot { width: 40px; height: 2px; background: rgba(255,255,255,0.2); border: none; cursor: pointer; transition: background 0.3s; }
+.hero-dot { width: 40px; height: 2px; background: rgba(255,255,255,0.2); border: none; cursor: none; transition: background 0.3s; }
 .hero-dot.active { background: var(--text); }
 
 .hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,var(--bg2) 0%,transparent 50%);}
@@ -60,7 +60,7 @@
 
 /* ── CATEGORIES ── */
 .cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
-.cat-card{background:var(--bg2);padding:40px 32px;display:flex;flex-direction:column;gap:40px;min-height:200px;transition:background .2s;position:relative;overflow:hidden;cursor:pointer;text-decoration:none;}
+.cat-card{background:var(--bg2);padding:40px 32px;display:flex;flex-direction:column;gap:40px;min-height:200px;transition:background .2s;position:relative;overflow:hidden;cursor:none;text-decoration:none;}
 .cat-card::after{content:'→';font-family:var(--display);font-size:18px;position:absolute;bottom:20px;right:24px;color:var(--line);transition:color .25s,transform .25s;}
 .cat-card:hover{background:var(--bg3);}
 .cat-card:hover::after{color:var(--text3);transform:translate(3px,-3px);}

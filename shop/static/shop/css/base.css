@@ -49,23 +49,56 @@ body.light-mode {
 
 html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:400;overflow-x:hidden;cursor:none; transition: background 0.3s, color 0.3s;}
+
+/* ── CURSOR CÍRCULO DINÁMICO (INVERSIÓN) ── */
+#cur {
+  position: fixed;
+  width: 16px;
+  height: 16px;
+  background: #fff; /* Base blanca para inversión total */
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s, width 0.2s, height 0.2s;
+  mix-blend-mode: difference; /* Invierte colores respecto al fondo */
+}
+#cur::after {
+  content: "";
+  width: 4px;
+  height: 4px;
+  background: #fff; /* Blanco también aquí para que al mezclarse con el círculo blanco se vea negro */
+  border-radius: 50%;
+  mix-blend-mode: difference; /* Doble inversión para el punto central */
+}
+
+/* Estado Hover: El círculo crece */
+body.ha #cur {
+  width: 32px;
+  height: 32px;
+}
+body.ha #cur::after {
+  width: 6px;
+  height: 6px;
+}
+
 ::-webkit-scrollbar{width:3px;}
 ::-webkit-scrollbar-track{background:var(--bg);}
 ::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px;}
-a{text-decoration:none;color:inherit;}
+a{text-decoration:none;color:inherit;cursor:none;}
 button{font-family:inherit;cursor:none;}
 img{display:block;}
-
-/* ── CURSOR ── */
-#cur,#cur2{position:fixed;border-radius:50%;pointer-events:none;z-index:9999;top:0;left:0;}
-#cur{width:8px;height:8px;background:var(--text);transform:translate(-50%,-50%);}
-#cur2{width:32px;height:32px;border:1px solid rgba(128,128,128,.25);transform:translate(-50%,-50%);transition:transform .3s ease,width .25s,height .25s,border-color .25s;}
-body.ha #cur2{width:52px;height:52px;border-color:rgba(128,128,128,.5);}
 
 /* Utility Classes */
 .flex-center{display:flex; align-items:center; justify-content:center;}
 .text-mono{font-family:var(--mono);}
 .text-display{font-family:var(--display);}
 .upper{text-transform:uppercase; letter-spacing:0.05em;}
-.reveal{opacity:0;transform:translateY(var(--s-lg));transition:opacity .65s ease,transform .65s ease;}
-.reveal.in{opacity:1;transform:none;}
+
+.reveal { opacity: 1; } /* Visible por defecto */

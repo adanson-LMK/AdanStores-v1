@@ -38,7 +38,6 @@
         display: flex; 
         align-items: center; 
         gap: 8px; 
-        cursor: pointer;
         font-family: var(--mono);
         font-size: var(--f-xs);
     }
@@ -132,8 +131,8 @@
                         </div>
                     </div>
                     <div>
-                        <h3 class="section-title">Imagen</h3>
-                        <label class="text-mono" style="font-size: var(--f-xs); color: var(--m);">Archivo de Imagen</label>
+                        <h3 class="section-title">Imagen Principal</h3>
+                        <label class="text-mono" style="font-size: var(--f-xs); color: var(--m);">Portada del Producto</label>
                         {{ form.image }}
                         {% if form.instance.image %}
                             <div class="image-preview">
@@ -145,7 +144,31 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN 4: ATRIBUTOS -->
+            <!-- SECCIÓN 4: GALERÍA DE IMÁGENES (NUEVA) -->
+            <div class="form-section">
+                <h3 class="section-title">Galería Archive (Media)</h3>
+                <p class="sec-meta" style="margin-bottom: var(--s-md); font-size: 11px;">Sube fotos adicionales para mostrar detalles técnicos.</p>
+                
+                <div class="gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; margin-bottom: 20px;">
+                    {% if product.images.all %}
+                        {% for img in product.images.all %}
+                        <div class="gallery-item" style="position: relative; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; background: white;">
+                            <img src="{{ img.image.url }}" style="width: 100%; height: 100px; object-fit: contain;">
+                            <label style="position: absolute; top: 5px; right: 5px; background: rgba(255,0,0,0.8); color: white; padding: 2px 6px; border-radius: 4px; font-size: 9px; cursor: pointer;">
+                                <input type="checkbox" name="delete_images" value="{{ img.id }}" style="margin-right: 4px;"> Borrar
+                            </label>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div style="background: var(--bg2); padding: 20px; border: 2px dashed var(--line); border-radius: var(--r); text-align: center;">
+                    <label class="text-mono" style="font-size: 11px; color: var(--m); display: block; margin-bottom: 10px;">Añadir nuevas imágenes a la galería</label>
+                    <input type="file" name="gallery_images" multiple class="nl-input" style="border: none; background: none;">
+                </div>
+            </div>
+
+            <!-- SECCIÓN 5: ATRIBUTOS -->
             <div class="form-section">
                 <h3 class="section-title">Etiquetas y Estado</h3>
                 <div class="checkbox-group">
@@ -164,4 +187,25 @@
         </form>
     </div>
 </div>
+
+<script>
+    // Auto-Slug Generator
+    const nameInput = document.getElementById('id_name');
+    const slugInput = document.getElementById('id_slug');
+
+    if (nameInput && slugInput) {
+        nameInput.addEventListener('input', function() {
+            if (!slugInput.dataset.edited) {
+                let text = this.value.toLowerCase()
+                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Quitar acentos
+                    .replace(/[^\w\s-]/g, '') // Quitar caracteres especiales
+                    .replace(/\s+/g, '-') // Cambiar espacios por guiones
+                    .replace(/-+/g, '-'); // Quitar guiones duplicados
+                slugInput.value = text;
+            }
+        });
+
+        slugInput.addEventListener('change', () => slugInput.dataset.edited = 'true');
+    }
+</script>
 {% endblock %}

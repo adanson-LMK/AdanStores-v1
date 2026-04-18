@@ -29,7 +29,7 @@
                 <h3 class="text-display" style="font-size: var(--f-sm); margin-bottom: var(--s-md);">Marcas</h3>
                 <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                     {% for brand in brands %}
-                        <a href="?brand={{ brand }}" class="badge {% if request.GET.brand == brand %}badge-arc{% endif %}" style="text-decoration: none; cursor: pointer;">{{ brand }}</a>
+                        <a href="?brand={{ brand }}" class="badge {% if request.GET.brand == brand %}badge-arc{% endif %}" style="text-decoration: none;">{{ brand }}</a>
                     {% endfor %}
                 </div>
             </div>
@@ -44,10 +44,10 @@
             <!-- Estado -->
             <div>
                 <h3 class="text-display" style="font-size: var(--f-sm); margin-bottom: var(--s-md);">Estado</h3>
-                <label style="display: flex; align-items: center; gap: 10px; font-size: var(--f-xs); color: var(--m); cursor: pointer;">
+                <label style="display: flex; align-items: center; gap: 10px; font-size: var(--f-xs); color: var(--m);">
                     <input type="checkbox" name="new" value="1" {% if request.GET.new %}checked{% endif %}> Nuevo Lanzamiento
                 </label>
-                <label style="display: flex; align-items: center; gap: 10px; font-size: var(--f-xs); color: var(--m); cursor: pointer; margin-top: 8px;">
+                <label style="display: flex; align-items: center; gap: 10px; font-size: var(--f-xs); color: var(--m); margin-top: 8px;">
                     <input type="checkbox" name="archive" value="1" {% if request.GET.archive %}checked{% endif %}> Segunda Mano
                 </label>
             </div>
@@ -88,7 +88,7 @@
                     <!-- Botón de Favoritos añadido aquí -->
                     <div style="display: flex; gap: 8px; margin-top: 16px;">
                         <button class="add-cart" data-id="{{ product.id }}" style="flex: 1; padding: 10px; font-size: 11px;">Carrito</button>
-                        <button class="wish-btn" data-id="{{ product.id }}" style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: var(--r); border: 1px solid var(--line); background: none; color: var(--m); cursor: pointer; transition: all 0.2s;">
+                        <button class="wish-btn" data-id="{{ product.id }}" style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: var(--r); border: 1px solid var(--line); background: none; color: var(--m); transition: all 0.2s;">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                         </button>
                     </div>

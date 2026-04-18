@@ -39,12 +39,31 @@
   </div>
 
   <div class="hero-grid">
-    <!-- 1. IMAGEN DEL PRODUCTO (AHORA A LA IZQUIERDA) -->
-    <div class="hero-right" style="background: #ffffff !important; display: flex; align-items: center; justify-content: center; padding: var(--s-3xl);">
-      {% if product.image %}
-        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-height: 440px; width: auto; object-fit: contain; opacity: 1; filter: none;">
-      {% else %}
-        <img src="https://via.placeholder.com/600x600" alt="Sin imagen">
+    <!-- 1. IMAGEN DEL PRODUCTO Y GALERÍA -->
+    <div class="hero-right" style="background: #ffffff !important; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--s-xl); gap: var(--s-lg);">
+      <!-- Imagen Principal -->
+      <div class="main-image-wrap" style="flex: 1; display: flex; align-items: center; justify-content: center;">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" id="mainProductImg" alt="{{ product.name }}" style="max-height: 440px; width: auto; object-fit: contain; opacity: 1; filter: none; transition: opacity 0.3s ease;">
+        {% else %}
+          <img src="https://via.placeholder.com/600x600" alt="Sin imagen">
+        {% endif %}
+      </div>
+
+      <!-- Galería de Miniaturas (Solo si hay más imágenes o queremos incluir la principal) -->
+      {% if product.images.all %}
+      <div class="gallery-thumbs" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%;">
+          <!-- Miniatura de la principal -->
+          <div class="thumb active" onclick="swapImage(this, '{{ product.image.url }}')" style="width: 60px; height: 60px; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; cursor: pointer; background: #fff;">
+              <img src="{{ product.image.url }}" style="width: 100%; height: 100%; object-fit: contain; filter: grayscale(0);">
+          </div>
+          <!-- Miniaturas adicionales -->
+          {% for img in product.images.all %}
+          <div class="thumb" onclick="swapImage(this, '{{ img.image.url }}')" style="width: 60px; height: 60px; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; cursor: pointer; background: #fff; opacity: 0.6; transition: all 0.2s;">
+              <img src="{{ img.image.url }}" style="width: 100%; height: 100%; object-fit: contain; filter: grayscale(1);">
+          </div>
+          {% endfor %}
+      </div>
       {% endif %}
     </div>
 
@@ -127,4 +146,32 @@
 {% endif %}
 
 {% include 'shop/includes/trust_strip.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function swapImage(element, newSrc) {
+    const mainImg = document.getElementById('mainProductImg');
+    
+    // Animación de salida
+    mainImg.style.opacity = '0';
+    
+    setTimeout(() => {
+        mainImg.src = newSrc;
+        // Animación de entrada
+        mainImg.style.opacity = '1';
+    }, 300);
+
+    // Gestionar clases activas en las miniaturas
+    document.querySelectorAll('.thumb').forEach(t => {
+        t.style.opacity = '0.6';
+        t.style.borderColor = 'var(--line)';
+        t.querySelector('img').style.filter = 'grayscale(1)';
+    });
+    
+    element.style.opacity = '1';
+    element.style.borderColor = 'var(--text)';
+    element.querySelector('img').style.filter = 'grayscale(0)';
+}
+</script>
 {% endblock %}

@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.db.models import Q
-from .models import Category, Product, Order, OrderItem, User, Wishlist
+from .models import Category, Product, Order, OrderItem, User, Wishlist, ProductImage
 from .forms import RegisterForm, LoginForm, ProductForm, OrderAssignmentForm
 from .cart import Cart
 import urllib.parse
@@ -173,8 +173,14 @@ def admin_products_list(request):
 @user_passes_test(is_admin)
 def admin_add_product(request):
     if request.method == 'POST':
-        form = ProductForm(request.POST, request.FILES); 
-        if form.is_valid(): form.save(); return redirect('shop:admin_products_list')
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            product = form.save()
+            # Galería de imágenes
+            gallery = request.FILES.getlist('gallery_images')
+            for img in gallery:
+                ProductImage.objects.create(product=product, image=img)
+            return redirect('shop:admin_products_list')
     else: form = ProductForm()
     return render(request, 'shop/admin/product_form.html', {'form': form, 'title': 'Nuevo Producto'})
 
@@ -182,10 +188,19 @@ def admin_add_product(request):
 def admin_edit_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
     if request.method == 'POST':
-        form = ProductForm(request.POST, request.FILES, instance=product); 
-        if form.is_valid(): form.save(); return redirect('shop:admin_products_list')
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            product = form.save()
+            # Nuevas imágenes
+            gallery = request.FILES.getlist('gallery_images')
+            for img in gallery:
+                ProductImage.objects.create(product=product, image=img)
+            # Eliminar marcadas
+            delete_ids = request.POST.getlist('delete_images')
+            if delete_ids: ProductImage.objects.filter(id__in=delete_ids).delete()
+            return redirect('shop:admin_products_list')
     else: form = ProductForm(instance=product)
-    return render(request, 'shop/admin/product_form.html', {'form': form, 'title': 'Editar Producto'})
+    return render(request, 'shop/admin/product_form.html', {'form': form, 'product': product, 'title': 'Editar Producto'})
 
 @user_passes_test(is_admin)
 def admin_delete_product(request, pk):

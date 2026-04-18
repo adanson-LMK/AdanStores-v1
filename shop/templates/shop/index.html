@@ -144,26 +144,95 @@
 
 {% block extra_js %}
 <script>
+  // --- CONFIGURACIÓN DEL SLIDER EXISTENTE ---
   let currentSlide = 0;
   const slider = document.getElementById('heroSlider');
   const dots = document.querySelectorAll('.hero-dot');
 
   function goToSlide(index) {
     currentSlide = index;
-    slider.style.transform = `translateX(-${index * 100}%)`;
-    
-    // Update dots
-    dots.forEach((dot, i) => {
-      dot.classList.toggle('active', i === index);
+    // Usamos GSAP para un deslizamiento fluido del slider
+    gsap.to(slider, {
+      xPercent: -index * 100,
+      duration: 1.2,
+      ease: "expo.inOut"
     });
+    
+    dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
   }
 
-  // Auto-play (opcional)
   setInterval(() => {
     if (dots.length > 0) {
       currentSlide = (currentSlide + 1) % dots.length;
       goToSlide(currentSlide);
     }
-  }, 6000);
+  }, 7000);
+
+  // --- PUNTO 1: HERO CINEMATIC INTRO (GSAP) - FAST VERSION ---
+  window.addEventListener('load', () => {
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+    // Preparamos los elementos
+    gsap.set(".hero-tag, .hero-h1, .hero-sub, .hero-btns a, .hero-right", { opacity: 0 });
+
+    tl.to(".hero-right", {
+        opacity: 1,
+        duration: 0.6,
+        ease: "power2.out"
+    })
+    .fromTo(".hero-tag", { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4 }, "-=0.4")
+    .fromTo(".hero-h1", { y: 15, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5 }, "-=0.35")
+    .fromTo(".hero-sub", { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4 }, "-=0.35")
+    .fromTo(".hero-btns a", { 
+        y: 10, 
+        opacity: 0 
+    }, { 
+        y: 0, 
+        opacity: 1, 
+        duration: 0.4, 
+        stagger: 0.1 
+    }, "-=0.3");
+
+    // --- PUNTO 2: SCROLLTRIGGER (REVELADO POR SECCIONES) ---
+    // Registramos el plugin
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Seleccionamos todas las secciones con .reveal (excepto el Hero que ya animamos)
+    const reveals = document.querySelectorAll('.section.reveal:not(.hero-grid), .trust-strip.reveal');
+
+    reveals.forEach(section => {
+      // Buscamos elementos hijos que queramos animar en cascada (stagger)
+      const children = section.querySelectorAll('.cat-card, .prod-card, .ts-item, .review-card, .nl-left, .nl-form, .faq-item');
+      
+      if (children.length > 0) {
+        // Si tiene hijos, los animamos en cascada
+        gsap.from(children, {
+          scrollTrigger: {
+            trigger: section,
+            start: "top 85%", // Se activa cuando la sección entra al 85% de la pantalla
+            toggleActions: "play none none none"
+          },
+          y: 30,
+          opacity: 0,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: "power2.out"
+        });
+      } else {
+        // Si no tiene hijos específicos, animamos la sección entera
+        gsap.from(section, {
+          scrollTrigger: {
+            trigger: section,
+            start: "top 85%",
+            toggleActions: "play none none none"
+          },
+          y: 30,
+          opacity: 0,
+          duration: 0.8,
+          ease: "power2.out"
+        });
+      }
+    });
+  });
 </script>
 {% endblock %}
