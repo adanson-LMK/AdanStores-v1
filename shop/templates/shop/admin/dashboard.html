@@ -10,21 +10,21 @@
 
     <!-- Estadísticas Principales -->
     <div class="cat-grid" style="margin-bottom: var(--s-2xl);">
-        <div class="cat-card">
+        <a href="{% url 'shop:admin_users_list' %}" class="cat-card">
             <div class="cat-icon-wrap">👥</div>
             <div>
                 <div class="cat-label">{{ total_users }}</div>
                 <div class="cat-count">Usuarios Registrados</div>
             </div>
-        </div>
-        <div class="cat-card">
+        </a>
+        <a href="{% url 'shop:admin_products_list' %}" class="cat-card">
             <div class="cat-icon-wrap">📦</div>
             <div>
                 <div class="cat-label">{{ total_products }}</div>
                 <div class="cat-count">Productos en Catálogo</div>
             </div>
-        </div>
-        <div class="cat-card">
+        </a>
+        <a href="{% url 'shop:admin_orders_list' %}" class="cat-card">
             <div class="cat-icon-wrap" style="background: {% if pending_orders > 0 %}#ff4a4a{% else %}var(--bg4){% endif %};">📁</div>
             <div>
                 <div class="cat-label">{{ total_orders }}</div>
@@ -33,7 +33,7 @@
                     <div class="text-mono" style="font-size: 9px; color: #ff4a4a; margin-top: 4px;">{{ pending_orders }} PENDIENTES</div>
                 {% endif %}
             </div>
-        </div>
+        </a>
     </div>
 
     <!-- Accesos Rápidos -->
