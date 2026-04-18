@@ -89,7 +89,12 @@ DATABASES = {
 }
 
 # CSRF Trusted Origins para producción
-CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', 'http://localhost,http://127.0.0.1').split(',')
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.ondigitalocean.app',
+    'http://localhost',
+    'http://127.0.0.1'
+] + os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
+
 
 
 
