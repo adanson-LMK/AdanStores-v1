@@ -1,0 +1,55 @@
+{% extends 'shop/base.html' %}
+{% block title %}Usuarios — AdanStore{% endblock %}
+
+{% block content %}
+<div class="section">
+    <div class="sec-head" style="margin-bottom: var(--s-xl);">
+        <div>
+            <h2 class="sec-title">Gestión de Usuarios</h2>
+            <p class="sec-meta">Encuentra y asigna equipos a tus clientes</p>
+        </div>
+        <a href="{% url 'shop:admin_dashboard' %}" class="see-all">← Volver al Panel</a>
+    </div>
+
+    <!-- BUSCADOR MINIMALISTA -->
+    <div style="margin-bottom: var(--s-2xl); max-width: 600px;">
+        <form method="GET" action="." class="nav-search-wrap" style="width: 100%; padding: 4px 20px; border-radius: 30px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input type="text" name="q" placeholder="Buscar por email del usuario..." class="nav-search" value="{{ query|default:'' }}" style="font-size: 13px;">
+            {% if query %}
+                <a href="." class="sec-meta" style="font-size: 9px; text-decoration: underline;">Limpiar</a>
+            {% endif %}
+            <button type="submit" style="display: none;"></button>
+        </form>
+    </div>
+
+    <div class="faq-list">
+        {% for u in users %}
+        <div class="faq-item" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 28px;">
+            <div style="display: flex; align-items: center; gap: var(--s-md);">
+                <div style="width: 40px; height: 40px; background: var(--bg3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 800; font-size: 14px; color: var(--dim);">
+                    {{ u.email|slice:":1"|upper }}
+                </div>
+                <div>
+                    <div class="text-display" style="font-size: var(--f-md); font-weight: 700;">{{ u.email }}</div>
+                    <div class="text-mono" style="font-size: var(--f-xs); color: var(--dim); margin-top: 4px;">
+                        ID: #{{ u.id }} | Unido el: {{ u.date_joined|date:"d/m/Y" }}
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <a href="{% url 'shop:admin_user_detail' u.id %}" class="btn-w" style="padding: 10px 20px; font-size: var(--f-xs);">Gestionar Perfil</a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="newsletter" style="text-align: center; flex-direction: column; padding: var(--s-3xl);">
+            <p class="nl-title">Sin resultados</p>
+            <p class="nl-sub">No se encontró ningún usuario con el criterio "{{ query }}".</p>
+            <a href="." class="btn-o" style="margin-top: 20px;">Ver todos los usuarios</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

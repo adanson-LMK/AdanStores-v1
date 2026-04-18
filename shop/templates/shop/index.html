@@ -12,342 +12,158 @@
           <span class="hero-tag-text">Nueva colección 2025</span>
         </div>
         <h1 class="hero-h1">
-          Precision<br>
-          <em>Instruments</em><br>
-          For The<br>
-          Modern Setup.
+          Instrumentos<br>
+          <em>de Precisión</em><br>
+          Para el<br>
+          Setup Moderno.
         </h1>
-        <p class="hero-sub">Periféricos curados para rendimiento y pureza estética. Sin compromisos.</p>
+        <p class="hero-sub">Periféricos seleccionados para alto rendimiento y pureza estética. Sin compromisos.</p>
       </div>
       <div>
         <div class="hero-btns">
-          <button class="btn-w">Explorar colección</button>
-          <button class="btn-o">Second Hand →</button>
-        </div>
-        <div style="display:flex;gap:24px;margin-top:28px;">
-          <div>
-            <div style="font-family:var(--mono);font-size:20px;font-weight:500;color:var(--w);">500+</div>
-            <div style="font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.06em;margin-top:2px;">Productos</div>
-          </div>
-          <div>
-            <div style="font-family:var(--mono);font-size:20px;font-weight:500;color:var(--w);">4.9★</div>
-            <div style="font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.06em;margin-top:2px;">Valoración</div>
-          </div>
-          <div>
-            <div style="font-family:var(--mono);font-size:20px;font-weight:500;color:var(--w);">2K+</div>
-            <div style="font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.06em;margin-top:2px;">Clientes</div>
-          </div>
+          <a href="{% url 'shop:product_list' %}" class="btn-w">Explorar colección</a>
+          <a href="{% url 'shop:product_list_by_category' 'segunda-mano' %}" class="btn-o">Segunda Mano →</a>
         </div>
       </div>
     </div>
     <div class="hero-right">
-      <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB144Uc1tDPx9csR9dUCjNIw8ohy5dxY53Q04PpLlnweUA4P2ZUoBg1HkBkK1q1BWQeHBy_eZdMsxfCSUvUgvsK01wTFWL0GGl_G3iEkddlVjfqvVeI9X0zzsmjx21bbpxscjNLBjy8D_jbvhZOU9EdNXdEi_oSLeC7Wuox0hDKNIwmvpmL9L-AAnslcewChTZhime5UlZ7u0sxUSzsszFOx9ykqF0KnY-6P-sa5rS5bBOIEKa_7FVpnvMD4xVPCQqKsBk9Rnv4fElG" alt="Keyboard"/>
-      <div class="hero-overlay"></div>
-      <div class="hero-product-info">
-        <div>
-          <div class="hpi-name">TKL Foundry Edition</div>
-          <div class="hpi-sub">Más vendido · Aluminum chassis</div>
+      {% if featured_products %}
+        <div class="hero-slider" id="heroSlider">
+          {% for product in featured_products %}
+          <div class="hero-slide">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            <div class="hero-overlay"></div>
+            <div class="hero-product-info">
+              <div>
+                <div class="hpi-name">{{ product.name }}</div>
+                <div class="hpi-sub">Archivo de Precisión · {{ product.brand }}</div>
+              </div>
+              <div class="hpi-price">S/{{ product.price }}</div>
+            </div>
+            <a href="{% url 'shop:product_detail' product.slug %}" style="position: absolute; inset: 0; z-index: 10;"></a>
+          </div>
+          {% endfor %}
         </div>
-        <div class="hpi-price">$185</div>
-      </div>
+        
+        {% if featured_products.count > 1 %}
+        <div class="hero-nav">
+          {% for i in featured_products %}
+          <button class="hero-dot {% if forloop.first %}active{% endif %}" onclick="goToSlide({{ forloop.counter0 }})"></button>
+          {% endfor %}
+        </div>
+        {% endif %}
+      {% else %}
+        <img src="https://via.placeholder.com/1320x1000" alt="Sin producto destacado">
+        <div class="hero-product-info">
+          <div class="hpi-name">No hay productos destacados</div>
+        </div>
+      {% endif %}
     </div>
   </div>
 </div>
 
-<!-- TICKER -->
-<div class="ticker">
-  <div class="ticker-track">
-    <span class="ticker-item">Envíos a todo el Perú</span>
-    <span class="ticker-item">Garantía 30 días</span>
-    <span class="ticker-item">Mechanical Keyboards</span>
-    <span class="ticker-item">Zero-Latency Switches</span>
-    <span class="ticker-item">Second Hand Archive</span>
-    <span class="ticker-item">Pago Seguro SSL</span>
-    <span class="ticker-item">The Precision Archive</span>
-    <span class="ticker-item">Envíos a todo el Perú</span>
-    <span class="ticker-item">Garantía 30 días</span>
-    <span class="ticker-item">Mechanical Keyboards</span>
-    <span class="ticker-item">Zero-Latency Switches</span>
-    <span class="ticker-item">Second Hand Archive</span>
-    <span class="ticker-item">Pago Seguro SSL</span>
-    <span class="ticker-item">The Precision Archive</span>
-  </div>
-</div>
+{% include 'shop/includes/ticker.html' %}
 
 <!-- CATEGORIES -->
 <div class="section reveal">
   <div class="sec-head">
     <h2 class="sec-title">Categorías</h2>
-    <span class="sec-meta">04 colecciones</span>
+    <span class="sec-meta">{{ categories.count }} colecciones</span>
   </div>
   <div class="cat-grid">
-    <a class="cat-card" href="#">
-      <div class="cat-icon-wrap">🖱</div>
+    {% for category in categories %}
+    <a class="cat-card {% if category.slug == 'segunda-mano' %}special{% endif %}" href="{% url 'shop:product_list_by_category' category.slug %}">
+      <div class="cat-icon-wrap">{{ category.icon|default:"📦" }}</div>
       <div>
-        <div class="cat-label">Mice</div>
-        <div class="cat-count">32 productos</div>
+        <div class="cat-label">{{ category.name }}</div>
+        <div class="cat-count">{{ category.products.count }} productos</div>
       </div>
     </a>
-    <a class="cat-card" href="#">
-      <div class="cat-icon-wrap">⌨</div>
-      <div>
-        <div class="cat-label">Keyboards</div>
-        <div class="cat-count">48 productos</div>
-      </div>
-    </a>
-    <a class="cat-card" href="#">
-      <div class="cat-icon-wrap">🎧</div>
-      <div>
-        <div class="cat-label">Headsets</div>
-        <div class="cat-count">21 productos</div>
-      </div>
-    </a>
-    <a class="cat-card special" href="#">
-      <div class="cat-icon-wrap">↩</div>
-      <div>
-        <div class="cat-label">Second Hand</div>
-        <div class="cat-count">Mint condition archive</div>
-      </div>
-    </a>
+    {% empty %}
+    <p style="padding: 20px; color: var(--m);">No hay categorías creadas todavía.</p>
+    {% endfor %}
   </div>
 </div>
 
-<!-- TRUST STRIP -->
-<div class="trust-strip reveal">
-  <div class="trust-strip-inner">
-    <div class="ts-item">
-      <div class="ts-icon">🚚</div>
-      <div>
-        <div class="ts-title">Envío rápido</div>
-        <div class="ts-desc">Gratis desde $150. Entrega en 24–48h en Lima.</div>
-      </div>
-    </div>
-    <div class="ts-item">
-      <div class="ts-icon">↩</div>
-      <div>
-        <div class="ts-title">30 días de devolución</div>
-        <div class="ts-desc">Sin preguntas. Reembolso completo garantizado.</div>
-      </div>
-    </div>
-    <div class="ts-item">
-      <div class="ts-icon">🔒</div>
-      <div>
-        <div class="ts-title">Pago 100% seguro</div>
-        <div class="ts-desc">SSL, Visa, Mastercard, Yape y PagoEfectivo.</div>
-      </div>
-    </div>
-    <div class="ts-item">
-      <div class="ts-icon">💬</div>
-      <div>
-        <div class="ts-title">Soporte real</div>
-        <div class="ts-desc">Chat en vivo y WhatsApp de Lun–Sáb 9–21h.</div>
-      </div>
-    </div>
-  </div>
-</div>
+{% include 'shop/includes/trust_strip.html' %}
 
 <!-- PRODUCTS — BESTSELLERS -->
 <div class="section reveal">
   <div class="sec-head">
-    <h2 class="sec-title">Más vendidos</h2>
-    <a class="see-all" href="#">Ver todos →</a>
+    <h2 class="sec-title">Novedades</h2>
+    <a class="see-all" href="{% url 'shop:product_list' %}">Ver todos →</a>
   </div>
   <div class="prod-grid">
-
+    {% for product in products %}
     <div class="prod-card">
       <div class="prod-img">
-        <div class="prod-badges"><span class="badge badge-new">Nuevo</span></div>
-        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUNUbaD8BATPMbGnnedtk7PNyfATtM3tlByzOHrXHiyV25E3pdVpMY_4EKL1YCxwdNRuyeDeyKov7xKsQ2BJvT0zUykR69VYEO3ki2qhMZgN7rY6eCn2MmWtyx6Rk7WGgty-Ll7hwCwnYv2b5wrpd-9CJrTJ6XbbrG8RGmbnDx3TzYjeAj9dXE3DRnvHOj5pZ-IWIs7sf4r_qoDvhQ9-H9FfjnQfhLfJKTf0QUxnxdNFtm-hpeN4p-4jpB9NAGXxK-go0j9XJ0B-Go" alt="Mouse"/>
-        <div class="prod-quick"><button class="quick-btn">Vista rápida</button></div>
+        <div class="prod-badges">
+            {% if product.is_new %}<span class="badge badge-new">Nuevo</span>{% endif %}
+            {% if product.is_archive %}<span class="badge badge-arc">Archivo</span>{% endif %}
+            {% if product.is_sale %}<span class="badge badge-sale">Oferta</span>{% endif %}
+        </div>
+        {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}"/>
+        {% else %}
+            <img src="https://via.placeholder.com/400x300" alt="Sin imagen"/>
+        {% endif %}
+        <div class="prod-quick"><a href="{% url 'shop:product_detail' product.slug %}" class="quick-btn">Ver Detalle</a></div>
       </div>
       <div class="prod-body">
         <div class="prod-top">
-          <div class="prod-name">Pro Wireless Mk.II</div>
-          <div class="prod-price-wrap"><div class="prod-price">$129</div></div>
-        </div>
-        <div class="prod-rating">
-          <span class="stars">★★★★★</span>
-          <span class="prod-rev-count">(47)</span>
-        </div>
-        <p class="prod-desc">Mouse simétrico ultraligero con switches ópticos de cero latencia.</p>
-        <div class="prod-footer">
-          <button class="add-cart">Añadir al carrito</button>
-          <button class="wish-btn">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="prod-card">
-      <div class="prod-img">
-        <div class="prod-badges"><span class="badge badge-arc">Archive</span></div>
-        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTrkYHMDIkwhF71rNPJaREtLw8nrUoLgX17UXQ2NFMaR_WU0UHThgT8M2zPfYchqKb77T2eav10jk5Z-HZ5kZASUSII8vDYoVzBAeKmtkqrr8UTuHcvCyrDo1hGSYc47t0JjVN3P0G-qqxqD_hLOc4ING5lWPGO1EYob0Itq3FZ6DYMx9FOPrtQu2PdqOUXf2dKsrQfOXopq3W06iMUFZjjBhXD8Bgux06teLWu_6DE4cBqjwdEGKrl9B2WBaUJwSd4b8sgFwgChyb" alt="Keyboard"/>
-        <div class="prod-quick"><button class="quick-btn">Vista rápida</button></div>
-      </div>
-      <div class="prod-body">
-        <div class="prod-top">
-          <div class="prod-name">TKL Foundry Edition</div>
+          <a href="{% url 'shop:product_detail' product.slug %}" class="prod-name" style="text-decoration: none; color: inherit; transition: opacity .2s;">{{ product.name }}</a>
           <div class="prod-price-wrap">
-            <div class="prod-price">$185</div>
-            <div class="prod-old-price">$240</div>
+            <div class="prod-price">S/{{ product.price }}</div>
+            {% if product.old_price %}<div class="prod-old-price">S/{{ product.old_price }}</div>{% endif %}
           </div>
         </div>
         <div class="prod-rating">
           <span class="stars">★★★★★</span>
-          <span class="prod-rev-count">(82)</span>
+          <span class="prod-rev-count">(0)</span>
         </div>
-        <p class="prod-desc">Chasis de aluminio con switches lineales pre-lubricados. Estado inmaculado.</p>
+        <p class="prod-desc">{{ product.description|truncatewords:15 }}</p>
         <div class="prod-footer">
-          <button class="add-cart">Añadir al carrito</button>
-          <button class="wish-btn">
+          <button class="add-cart" data-id="{{ product.id }}">Añadir al carrito</button>
+          <button class="wish-btn" data-id="{{ product.id }}" aria-label="Añadir a lista de deseos">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           </button>
         </div>
       </div>
     </div>
-
-    <div class="prod-card">
-      <div class="prod-img">
-        <div class="prod-badges"><span class="badge badge-sale">−20%</span></div>
-        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoJ5mfCqBce-z0U4vYCOC69sz9DjdOHw7gwFfYAVrpVX7fFDzJmLemAUeVUxbEePL1RAl6kkPSmGuH2BOP08TzYDU8zCDVhru4Cczdiux0VIvnKTpp8CDaJXKzS6pjY6651XjDl740C_B9s4MzikXvEpeORaalEpSivZ9bkXE3rwIMiB0x5og84MvuxFd8k2vy4_s4N1zPuabe-QMcGLQdomJ_H8YDAv4UEyez7cczSi-ZCZ90WKCTUCbkrzlpHkc-NUxr5M2G5njV" alt="Headphones"/>
-        <div class="prod-quick"><button class="quick-btn">Vista rápida</button></div>
-      </div>
-      <div class="prod-body">
-        <div class="prod-top">
-          <div class="prod-name">Studio Reference X</div>
-          <div class="prod-price-wrap">
-            <div class="prod-price">$200</div>
-            <div class="prod-old-price">$250</div>
-          </div>
-        </div>
-        <div class="prod-rating">
-          <span class="stars">★★★★☆</span>
-          <span class="prod-rev-count">(34)</span>
-        </div>
-        <p class="prod-desc">Diseño open-back para soundstage expansivo y escucha crítica.</p>
-        <div class="prod-footer">
-          <button class="add-cart">Añadir al carrito</button>
-          <button class="wish-btn">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          </button>
-        </div>
-      </div>
-    </div>
-
-  </div>
-  <div style="display:flex;justify-content:center;margin-top:32px;">
-    <button class="btn-o">Cargar más productos ↓</button>
+    {% empty %}
+    <p style="padding: 20px; color: var(--m);">No hay productos disponibles por ahora.</p>
+    {% endfor %}
   </div>
 </div>
 
-<!-- REVIEWS -->
-<div class="section reveal">
-  <div class="sec-head">
-    <h2 class="sec-title">Lo que dicen</h2>
-    <span class="sec-meta">163 reseñas verificadas</span>
-  </div>
-  <div class="rating-summary">
-    <div class="rating-big">
-      <div class="rating-num">4.9</div>
-      <div class="rating-stars-big">★★★★★</div>
-      <div class="rating-total">163 reseñas</div>
-    </div>
-    <div class="rating-bars">
-      <div class="rbar-row"><span class="rbar-label">5★</span><div class="rbar-track"><div class="rbar-fill" style="width:88%"></div></div><span class="rbar-count">143</span></div>
-      <div class="rbar-row"><span class="rbar-label">4★</span><div class="rbar-track"><div class="rbar-fill" style="width:8%"></div></div><span class="rbar-count">13</span></div>
-      <div class="rbar-row"><span class="rbar-label">3★</span><div class="rbar-track"><div class="rbar-fill" style="width:3%"></div></div><span class="rbar-count">5</span></div>
-      <div class="rbar-row"><span class="rbar-label">2★</span><div class="rbar-track"><div class="rbar-fill" style="width:1%"></div></div><span class="rbar-count">2</span></div>
-      <div class="rbar-row"><span class="rbar-label">1★</span><div class="rbar-track"><div class="rbar-fill" style="width:0%"></div></div><span class="rbar-count">0</span></div>
-    </div>
-  </div>
-  <div class="reviews-grid">
-    <div class="review-card">
-      <div class="rv-header">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div class="rv-avatar">CP</div>
-          <div>
-            <div class="rv-name">Carlos P.</div>
-            <div class="rv-product">TKL Foundry Edition</div>
-          </div>
-        </div>
-        <div class="rv-verified">✓ Verificado</div>
-      </div>
-      <div class="rv-stars">★★★★★</div>
-      <p class="rv-text">"Llegó en perfectas condiciones, exactamente como se describe. El teclado suena increíble y el estado es literalmente nuevo."</p>
-    </div>
-    <div class="review-card">
-      <div class="rv-header">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div class="rv-avatar">MR</div>
-          <div>
-            <div class="rv-name">María R.</div>
-            <div class="rv-product">Pro Wireless Mk.II</div>
-          </div>
-        </div>
-        <div class="rv-verified">✓ Verificado</div>
-      </div>
-      <div class="rv-stars">★★★★★</div>
-      <p class="rv-text">"Enviaron rapidísimo a Arequipa. El mouse es ligero como una pluma, lo uso para diseño y no podría estar más feliz."</p>
-    </div>
-    <div class="review-card">
-      <div class="rv-header">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div class="rv-avatar">JT</div>
-          <div>
-            <div class="rv-name">Jorge T.</div>
-            <div class="rv-product">Studio Reference X</div>
-          </div>
-        </div>
-        <div class="rv-verified">✓ Verificado</div>
-      </div>
-      <div class="rv-stars">★★★★★</div>
-      <p class="rv-text">"Atención al cliente de 10. Tuve una duda con el pedido y lo resolvieron por WhatsApp en minutos. Calidad-precio inmejorable."</p>
-    </div>
-  </div>
-</div>
+{% include 'shop/includes/reviews.html' %}
+{% include 'shop/includes/newsletter.html' %}
+{% include 'shop/includes/faq.html' %}
 
-<!-- NEWSLETTER -->
-<div class="section reveal">
-  <div class="newsletter">
-    <div class="nl-left">
-      <div class="nl-tag">Newsletter</div>
-      <h3 class="nl-title">10% off en tu primer pedido</h3>
-      <p class="nl-sub">Suscríbete para recibir drops exclusivos, ofertas antes que nadie y acceso anticipado al archivo Second Hand.</p>
-    </div>
-    <div class="nl-form">
-      <input class="nl-input" type="email" placeholder="tu @correo.com"/>
-      <button class="nl-btn">Suscribirme</button>
-    </div>
-  </div>
-</div>
+{% endblock %}
 
-<!-- FAQ -->
-<div class="section reveal">
-  <div class="sec-head">
-    <h2 class="sec-title">Preguntas frecuentes</h2>
-  </div>
-  <div class="faq-list">
-    <div class="faq-item">
-      <button class="faq-q" onclick="faq(this)">¿Cuánto cuesta el envío? <span class="faq-icon">+</span></button>
-      <div class="faq-ans"><p>El envío es gratuito en pedidos desde $150. Para pedidos menores, la tarifa se calcula al hacer checkout según tu ubicación. Ofrecemos opciones estándar (3–5 días) y express (24–48h en Lima).</p></div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-q" onclick="faq(this)">¿Hacen envíos a todo el Perú? <span class="faq-icon">+</span></button>
-      <div class="faq-ans"><p>Sí, enviamos a nivel nacional a través de Olva Courier y Shalom. Todos los envíos incluyen número de tracking y seguro.</p></div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-q" onclick="faq(this)">¿Cómo funciona el Second Hand Archive? <span class="faq-icon">+</span></button>
-      <div class="faq-ans"><p>Cada producto de segunda mano pasa por una revisión técnica de 15 puntos. Solo publicamos artículos en condición "como nuevo" o "excelente". Incluyen garantía de 15 días.</p></div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-q" onclick="faq(this)">¿Qué métodos de pago aceptan? <span class="faq-icon">+</span></button>
-      <div class="faq-ans"><p>Aceptamos Visa, Mastercard, Yape, Plin, PagoEfectivo y transferencia bancaria. Todos los pagos están cifrados con SSL.</p></div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-q" onclick="faq(this)">¿Puedo devolver un producto? <span class="faq-icon">+</span></button>
-      <div class="faq-ans"><p>Sí, tienes 30 días desde la recepción para hacer una devolución sin preguntas. Reembolso completo en 3–5 días hábiles.</p></div>
-    </div>
-  </div>
-</div>
+{% block extra_js %}
+<script>
+  let currentSlide = 0;
+  const slider = document.getElementById('heroSlider');
+  const dots = document.querySelectorAll('.hero-dot');
+
+  function goToSlide(index) {
+    currentSlide = index;
+    slider.style.transform = `translateX(-${index * 100}%)`;
+    
+    // Update dots
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === index);
+    });
+  }
+
+  // Auto-play (opcional)
+  setInterval(() => {
+    if (dots.length > 0) {
+      currentSlide = (currentSlide + 1) % dots.length;
+      goToSlide(currentSlide);
+    }
+  }, 6000);
+</script>
 {% endblock %}

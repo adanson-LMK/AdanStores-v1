@@ -1,0 +1,106 @@
+{% extends 'shop/base.html' %}
+{% block title %}{% if category %}{{ category.name }}{% else %}Catálogo{% endif %} — AdanStore{% endblock %}
+
+{% block content %}
+<div class="section reveal" style="display: grid; grid-template-columns: 280px 1fr; gap: var(--s-2xl); align-items: start;">
+    
+    <!-- BARRA LATERAL DE FILTROS -->
+    <aside style="position: sticky; top: 100px;">
+        <div class="sec-head" style="margin-bottom: var(--s-lg);">
+            <h2 class="sec-title" style="font-size: var(--f-lg);">Filtros</h2>
+        </div>
+
+        <form method="GET" action="." style="display: flex; flex-direction: column; gap: var(--s-xl);">
+            
+            <!-- Categorías -->
+            <div>
+                <h3 class="text-display" style="font-size: var(--f-sm); margin-bottom: var(--s-md);">Categorías</h3>
+                <ul class="footer-links">
+                    <li><a href="{% url 'shop:product_list' %}" style="{% if not category %}color: var(--text); font-weight: 700;{% endif %}">Todas las colecciones</a></li>
+                    {% for cat in categories %}
+                        <li><a href="{% url 'shop:product_list_by_category' cat.slug %}" style="{% if category.id == cat.id %}color: var(--text); font-weight: 700;{% endif %}">{{ cat.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Marcas -->
+            {% if brands %}
+            <div>
+                <h3 class="text-display" style="font-size: var(--f-sm); margin-bottom: var(--s-md);">Marcas</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    {% for brand in brands %}
+                        <a href="?brand={{ brand }}" class="badge {% if request.GET.brand == brand %}badge-arc{% endif %}" style="text-decoration: none; cursor: pointer;">{{ brand }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Rango de Precio -->
+            <div>
+                <h3 class="text-display" style="font-size: var(--f-sm); margin-bottom: var(--s-md);">Precio Máximo</h3>
+                <input type="number" name="max_price" placeholder="Ejem: 200" class="nl-input" value="{{ request.GET.max_price }}" style="width: 100%;">
+            </div>
+
+            <!-- Estado -->
+            <div>
+                <h3 class="text-display" style="font-size: var(--f-sm); margin-bottom: var(--s-md);">Estado</h3>
+                <label style="display: flex; align-items: center; gap: 10px; font-size: var(--f-xs); color: var(--m); cursor: pointer;">
+                    <input type="checkbox" name="new" value="1" {% if request.GET.new %}checked{% endif %}> Nuevo Lanzamiento
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; font-size: var(--f-xs); color: var(--m); cursor: pointer; margin-top: 8px;">
+                    <input type="checkbox" name="archive" value="1" {% if request.GET.archive %}checked{% endif %}> Segunda Mano
+                </label>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+                <button type="submit" class="btn-w" style="flex: 1; padding: 12px; font-size: 11px;">Aplicar</button>
+                <a href="." class="btn-o" style="padding: 12px; font-size: 11px; text-align: center;">Limpiar</a>
+            </div>
+        </form>
+    </aside>
+
+    <!-- GRID DE PRODUCTOS -->
+    <main>
+        <div class="sec-head">
+            <h2 class="sec-title">{% if category %}{{ category.name }}{% else %}Todos los Productos{% endif %}</h2>
+            <span class="sec-meta">{{ products.count }} resultados</span>
+        </div>
+
+        <div class="prod-grid" style="grid-template-columns: repeat(2, 1fr);">
+            {% for product in products %}
+            <div class="prod-card">
+                <div class="prod-img">
+                    <div class="prod-badges">
+                        {% if product.is_new %}<span class="badge badge-new">Nuevo</span>{% endif %}
+                        {% if product.is_archive %}<span class="badge badge-arc">Archivo</span>{% endif %}
+                    </div>
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    <div class="prod-quick"><a href="{% url 'shop:product_detail' product.slug %}" class="quick-btn">Ver Detalle</a></div>
+                </div>
+                <div class="prod-body">
+                    <div class="prod-top">
+                        <div style="display: flex; flex-direction: column;">
+                            <span class="sec-meta" style="font-size: 9px; margin-bottom: 2px;">{{ product.brand }}</span>
+                            <a href="{% url 'shop:product_detail' product.slug %}" class="prod-name">{{ product.name }}</a>
+                        </div>
+                        <div class="prod-price">S/{{ product.price }}</div>
+                    </div>
+                    <!-- Botón de Favoritos añadido aquí -->
+                    <div style="display: flex; gap: 8px; margin-top: 16px;">
+                        <button class="add-cart" data-id="{{ product.id }}" style="flex: 1; padding: 10px; font-size: 11px;">Carrito</button>
+                        <button class="wish-btn" data-id="{{ product.id }}" style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: var(--r); border: 1px solid var(--line); background: none; color: var(--m); cursor: pointer; transition: all 0.2s;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="newsletter" style="grid-column: 1 / -1; text-align: center; flex-direction: column;">
+                <p class="nl-title">Sin resultados</p>
+                <p class="nl-sub">No hay equipos que coincidan con tus filtros actuales.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+{% endblock %}

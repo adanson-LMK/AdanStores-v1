@@ -1,0 +1,111 @@
+{% extends 'shop/base.html' %}
+{% block title %}Carrito — AdanStore{% endblock %}
+
+{% block content %}
+<div class="section">
+    <div class="sec-head">
+        <h2 class="sec-title">Tu Carrito</h2>
+        <span class="sec-meta" id="cart-summary-count">{{ cart|length }} artículos</span>
+    </div>
+
+    {% if cart %}
+    <div style="display: grid; grid-template-columns: 1fr 380px; gap: var(--s-2xl); align-items: start;">
+        <!-- LISTA DE PRODUCTOS -->
+        <div class="faq-list">
+            {% for item in cart %}
+            {% with product=item.product %}
+            <div class="faq-item" id="cart-item-{{ product.id }}" style="padding: 24px; display: flex; align-items: center; gap: var(--s-lg);">
+                <img src="{{ product.image.url }}" style="width: 80px; height: 80px; object-fit: contain; background: white; border-radius: 4px; border: 1px solid var(--line);">
+                
+                <div style="flex: 1;">
+                    <div class="text-display" style="font-size: var(--f-md); font-weight: 700;">{{ product.name }}</div>
+                    <div class="text-mono" style="font-size: var(--f-xs); color: var(--dim); margin-top: 4px;">SKU: {{ product.sku }}</div>
+                    
+                    <!-- Selector de Cantidad -->
+                    <div style="display: flex; align-items: center; gap: 12px; margin-top: 16px;">
+                        <button onclick="updateQty({{ product.id }}, -1)" class="btn-o" style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 16px;">-</button>
+                        <span id="qty-{{ product.id }}" class="text-mono" style="font-size: var(--f-sm); min-width: 20px; text-align: center;">{{ item.quantity }}</span>
+                        <button onclick="updateQty({{ product.id }}, 1)" class="btn-o" style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 16px;">+</button>
+                    </div>
+                </div>
+
+                <div class="text-mono" style="text-align: right; min-width: 120px;">
+                    <div style="font-size: 10px; color: var(--m); text-transform: uppercase;">Subtotal</div>
+                    <div id="item-total-{{ product.id }}" style="font-size: var(--f-md); font-weight: 800; margin-top: 4px;">S/{{ item.total_price }}</div>
+                    <a href="{% url 'shop:cart_remove' product.id %}" style="color: #ff4a4a; font-size: 10px; text-decoration: underline; margin-top: 12px; display: block;">Eliminar del carrito</a>
+                </div>
+            </div>
+            {% endwith %}
+            {% endfor %}
+        </div>
+
+        <!-- RESUMEN STICKY -->
+        <div class="newsletter" style="flex-direction: column; align-items: stretch; position: sticky; top: 120px; border: 1px solid var(--line); background: var(--bg2);">
+            <h3 class="text-display" style="font-size: var(--f-md); margin-bottom: var(--s-lg); border-bottom: 1px solid var(--line); padding-bottom: 12px;">Resumen de Pedido</h3>
+            
+            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                <span class="text-mono" style="font-size: var(--f-sm); color: var(--m);">Subtotal</span>
+                <span id="cart-subtotal" class="text-mono" style="font-size: var(--f-sm);">S/{{ cart.get_total_price }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 24px;">
+                <span class="text-mono" style="font-size: var(--f-sm); color: var(--m);">Envío</span>
+                <span class="text-mono" style="font-size: var(--f-sm); color: #4ade80;">GRATIS</span>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 20px; margin-bottom: 32px;">
+                <span class="text-display" style="font-size: var(--f-lg); font-weight: 800;">TOTAL</span>
+                <span id="cart-total" class="text-display" style="font-size: var(--f-lg); font-weight: 800;">S/{{ cart.get_total_price }}</span>
+            </div>
+            
+            <a href="{% url 'shop:checkout' %}" class="btn-w" style="width: 100%; padding: 18px; font-size: 14px; text-align: center; text-decoration: none; display: block;">Finalizar Compra</a>
+            <p class="sec-meta" style="font-size: 9px; text-align: center; margin-top: 16px; opacity: 0.6;">Transacción segura SSL vía Izipay / Niubiz</p>
+        </div>
+    </div>
+    {% else %}
+    <div class="newsletter" style="text-align: center; flex-direction: column; padding: var(--s-3xl);">
+        <p class="nl-title">Tu carrito está vacío</p>
+        <p class="nl-sub">Añade algunos periféricos de precisión para empezar.</p>
+        <a href="{% url 'shop:product_list' %}" class="btn-w" style="margin-top: 20px;">Explorar Tienda</a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function updateQty(productId, delta) {
+    const qtySpan = document.getElementById(`qty-${productId}`);
+    let currentQty = parseInt(qtySpan.innerText);
+    let newQty = currentQty + delta;
+
+    if (newQty < 1) return; // No permitir menos de 1
+
+    fetch(`/carrito/update/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ quantity: newQty })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            // Actualizar vista del item
+            qtySpan.innerText = newQty;
+            document.getElementById(`item-total-${productId}`).innerText = data.item_total;
+            
+            // Actualizar resumen global
+            document.getElementById('cart-subtotal').innerText = data.cart_total;
+            document.getElementById('cart-total').innerText = data.cart_total;
+            
+            // Actualizar contadores globales (Navbar y Sticky)
+            const stickyBadge = document.getElementById('sticky-cart-count');
+            if (stickyBadge) {
+                stickyBadge.innerText = data.cart_count;
+                stickyBadge.classList.add('update');
+                setTimeout(() => stickyBadge.classList.remove('update'), 300);
+            }
+        }
+    });
+}
+</script>
+{% endblock %}

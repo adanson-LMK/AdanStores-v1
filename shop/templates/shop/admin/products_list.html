@@ -1,0 +1,73 @@
+{% extends 'shop/base.html' %}
+{% block title %}Catálogo — AdanStore{% endblock %}
+
+{% block content %}
+<div class="section" style="display: grid; grid-template-columns: 260px 1fr; gap: var(--s-2xl); align-items: start;">
+    
+    <!-- SIDEBAR DE GESTIÓN (IZQUIERDA) -->
+    <aside style="position: sticky; top: 100px;">
+        <div class="sec-head" style="margin-bottom: var(--s-lg);">
+            <h2 class="sec-title" style="font-size: var(--f-lg);">Categorías</h2>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <a href="{% url 'shop:admin_products_list' %}" 
+               class="btn-o" 
+               style="text-align: left; padding: 12px 20px; font-size: 11px; {% if not selected_category %}background: var(--bg3); color: var(--text); border-color: var(--text);{% endif %}">
+                📦 Todos los productos
+            </a>
+            
+            {% for cat in categories %}
+            <a href="?category={{ cat.slug }}" 
+               class="btn-o" 
+               style="text-align: left; padding: 12px 20px; font-size: 11px; {% if selected_category.id == cat.id %}background: var(--bg3); color: var(--text); border-color: var(--text);{% endif %}">
+                {{ cat.icon|default:"📁" }} {{ cat.name|upper }}
+            </a>
+            {% endfor %}
+        </div>
+
+        <div style="margin-top: var(--s-2xl); padding-top: var(--s-xl); border-top: 1px solid var(--line);">
+            <a href="{% url 'shop:admin_add_product' %}" class="btn-w" style="width: 100%; text-align: center; display: block; font-size: 11px;">+ Nuevo Producto</a>
+            <a href="{% url 'shop:admin_dashboard' %}" class="see-all" style="display: block; margin-top: 20px; text-align: center;">← Volver al Dashboard</a>
+        </div>
+    </aside>
+
+    <!-- LISTADO FILTRADO (DERECHA) -->
+    <main>
+        <div class="sec-head">
+            <h2 class="sec-title">
+                {% if selected_category %}{{ selected_category.name }}{% else %}Gestión Total{% endif %}
+            </h2>
+            <span class="sec-meta">{{ products.count }} resultados</span>
+        </div>
+
+        <div class="faq-list">
+            {% for p in products %}
+            <div class="faq-item" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px;">
+                <div style="display: flex; align-items: center; gap: var(--s-md);">
+                    {% if p.image %}
+                        <img src="{{ p.image.url }}" style="width: 48px; height: 44px; object-fit: contain; background: white; border-radius: 4px; border: 1px solid var(--line);">
+                    {% endif %}
+                    <div>
+                        <div class="text-display" style="font-size: var(--f-sm); font-weight: 700;">{{ p.name }}</div>
+                        <div class="text-mono" style="font-size: 9px; color: var(--dim); margin-top: 2px;">
+                            SKU: {{ p.sku }} | S/{{ p.price }} | Stock: {{ p.stock }}
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    {% if p.is_featured %}<span class="badge badge-arc" style="font-size: 8px;">Hero</span>{% endif %}
+                    <a href="{% url 'shop:admin_edit_product' p.pk %}" class="btn-o" style="padding: 6px 12px; font-size: 9px;">Editar</a>
+                    <a href="{% url 'shop:admin_delete_product' p.pk %}" class="btn-o" style="padding: 6px 12px; font-size: 9px; border-color: #ff4a4a; color: #ff4a4a;" onclick="return confirm('¿Seguro que deseas eliminar este producto?')">Eliminar</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="newsletter" style="text-align: center; flex-direction: column; padding: var(--s-3xl);">
+                <p class="nl-title">No hay productos</p>
+                <p class="nl-sub">Esta categoría aún no tiene artículos registrados.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+{% endblock %}

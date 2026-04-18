@@ -1,0 +1,28 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block title %}Iniciar Sesión — AdanStore{% endblock %}
+
+{% block content %}
+<div class="section flex-center" style="min-height: 70vh;">
+    <div class="newsletter" style="max-width: 500px; width: 100%; flex-direction: column; text-align: center;">
+        <div class="nl-tag text-mono">Acceso</div>
+        <h2 class="nl-title">Bienvenido de nuevo</h2>
+        <p class="nl-sub" style="margin-bottom: var(--s-lg);">Ingresa tus credenciales para continuar al archivo.</p>
+        
+        <form method="POST" class="nl-form" style="flex-direction: column; width: 100%; max-width: none; gap: var(--s-md);">
+            {% csrf_token %}
+            {{ form.username }}
+            {{ form.password }}
+            {% if form.errors %}
+                <p style="color: #ff4a4a; font-size: var(--f-xs); font-family: var(--mono);">Credenciales incorrectas. Intenta de nuevo.</p>
+            {% endif %}
+            <button type="submit" class="nl-btn" style="width: 100%;">Entrar</button>
+        </form>
+        
+        <div style="margin-top: var(--s-lg);">
+            <p class="nl-sub">¿No tienes cuenta? <a href="{% url 'shop:register' %}" style="color: var(--text); text-decoration: underline;">Regístrate aquí</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

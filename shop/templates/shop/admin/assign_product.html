@@ -1,0 +1,74 @@
+{% extends 'shop/base.html' %}
+{% block title %}Asignar Equipo — AdanStore{% endblock %}
+
+{% block extra_css %}
+<style>
+    .assign-container { max-width: 600px; margin: 0 auto; }
+    .form-box { 
+        background: var(--bg3); 
+        padding: 40px; 
+        border-radius: var(--r); 
+        border: 1px solid var(--line);
+    }
+    .user-info-card {
+        background: var(--bg2);
+        padding: 20px;
+        border-radius: var(--r);
+        margin-bottom: var(--s-xl);
+        border-left: 3px solid var(--text);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="section reveal">
+    <div class="sec-head">
+        <h2 class="sec-title">Asignar Equipo al Archivo</h2>
+        <a href="{% url 'shop:admin_user_detail' target_user.id %}" class="see-all">← Cancelar y Volver</a>
+    </div>
+
+    <div class="assign-container">
+        <!-- Información del Cliente -->
+        <div class="user-info-card">
+            <p class="text-mono" style="font-size: 10px; color: var(--dim); text-transform: uppercase;">Destinatario del equipo</p>
+            <p class="text-display" style="font-size: var(--f-md); margin-top: 4px;">{{ target_user.email }}</p>
+            <p class="text-mono" style="font-size: 11px; color: var(--m); margin-top: 2px;">ID de Cliente: #{{ target_user.id }}</p>
+        </div>
+
+        <!-- Formulario Técnico -->
+        <div class="form-box">
+            <form method="POST" class="nl-form" style="flex-direction: column; gap: var(--s-lg);">
+                {% csrf_token %}
+                
+                <div style="text-align: left; width: 100%;">
+                    <label class="text-mono" style="font-size: 11px; color: var(--m); margin-bottom: 8px; display: block;">PRODUCTO DEL CATÁLOGO</label>
+                    {{ form.product }}
+                    {% if form.product.errors %}
+                        <p style="color: #ff4a4a; font-size: 10px; margin-top: 4px;">{{ form.product.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div style="text-align: left; width: 100%;">
+                    <label class="text-mono" style="font-size: 11px; color: var(--m); margin-bottom: 8px; display: block;">CANTIDAD DE UNIDADES</label>
+                    {{ form.quantity }}
+                </div>
+
+                <div style="text-align: left; width: 100%;">
+                    <label class="text-mono" style="font-size: 11px; color: var(--m); margin-bottom: 8px; display: block;">NOTAS TÉCNICAS (OPCIONAL)</label>
+                    {{ form.notes }}
+                    <p class="sec-meta" style="font-size: 8px; margin-top: 6px; opacity: 0.5;">Ej: "Incluye garantía extendida", "Serie: #001-A"</p>
+                </div>
+
+                <div style="margin-top: var(--s-md); padding-top: var(--s-md); border-top: 1px solid var(--line);">
+                    <button type="submit" class="btn-w" style="width: 100%; padding: 18px; font-size: 13px;">
+                        Confirmar y Documentar Adquisición
+                    </button>
+                    <p class="sec-meta" style="font-size: 9px; text-align: center; margin-top: 12px; color: #4ade80;">
+                        Esta acción generará un pedido verificado automáticamente.
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

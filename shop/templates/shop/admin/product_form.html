@@ -1,0 +1,167 @@
+{% extends 'shop/base.html' %}
+{% block title %}{{ title }} — AdanStore{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-form-container { max-width: 900px !important; margin: 0 auto; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-lg); }
+    .full-width { grid-column: 1 / -1; }
+    
+    .form-section { 
+        background: var(--bg3); 
+        padding: var(--s-lg); 
+        border-radius: var(--r); 
+        border: 1px solid var(--line);
+        margin-bottom: var(--s-lg);
+    }
+    
+    .section-title { 
+        font-family: var(--display); 
+        font-size: var(--f-sm); 
+        text-transform: uppercase; 
+        color: var(--dim); 
+        margin-bottom: var(--s-md);
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 8px;
+    }
+
+    /* Estilo para los booleanos (Checkboxes) */
+    .checkbox-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--s-lg);
+        background: var(--bg2);
+        padding: var(--s-md);
+        border-radius: var(--r);
+    }
+    .check-item { 
+        display: flex; 
+        align-items: center; 
+        gap: 8px; 
+        cursor: pointer;
+        font-family: var(--mono);
+        font-size: var(--f-xs);
+    }
+    .check-item input { width: 16px; height: 16px; accent-color: var(--text); }
+
+    /* Preview de imagen */
+    .image-preview {
+        display: flex;
+        align-items: center;
+        gap: var(--s-md);
+        margin-top: 8px;
+    }
+    .image-preview img {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+        background: white;
+        border-radius: var(--r);
+        border: 1px solid var(--line);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="section reveal">
+    <div class="sec-head">
+        <h2 class="sec-title">{{ title }}</h2>
+        <a href="{% url 'shop:admin_products_list' %}" class="see-all">← Cancelar y Volver</a>
+    </div>
+
+    <div class="admin-form-container">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- SECCIÓN 1: IDENTIFICACIÓN -->
+            <div class="form-section">
+                <h3 class="section-title">Información Principal</h3>
+                <div class="form-grid">
+                    <div class="full-width">
+                        <label class="text-mono" style="font-size: var(--f-xs); color: var(--m);">Nombre del Producto</label>
+                        {{ form.name }}
+                    </div>
+                    <div>
+                        <label class="text-mono" style="font-size: var(--f-xs); color: var(--m);">Categoría</label>
+                        {{ form.category }}
+                    </div>
+                    <div>
+                        <label class="text-mono" style="font-size: var(--f-xs); color: var(--m);">Marca</label>
+                        {{ form.brand }}
+                    </div>
+                    <div>
+                        <label class="text-mono" style="font-size: var(--f-xs); color: var(--m);">Identificador (SKU)</label>
+                        {{ form.sku }}
+                    </div>
+                    <div>
+                        <label class="text-mono" style="font-size: var(--f-xs); color: var(--m);">Slug URL</label>
+                        {{ form.slug }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 2: DESCRIPCIONES -->
+            <div class="form-section">
+                <h3 class="section-title">Contenido y Detalles</h3>
+                <div style="margin-bottom: var(--s-md);">
+                    <label class="text-mono" style="font-size: var(--f-xs); color: var(--m);">Descripción Corta (Resumen)</label>
+                    {{ form.description }}
+                </div>
+                <div>
+                    <label class="text-mono" style="font-size: var(--f-xs); color: var(--m);">Descripción Detallada (Markdown)</label>
+                    {{ form.detailed_description }}
+                </div>
+            </div>
+
+            <!-- SECCIÓN 3: PRECIO E IMAGEN -->
+            <div class="form-section">
+                <div class="form-grid">
+                    <div>
+                        <h3 class="section-title">Comercial</h3>
+                        <div style="margin-bottom: var(--s-md);">
+                            <label class="text-mono" style="font-size: var(--f-xs); color: var(--m);">Precio (S/)</label>
+                            {{ form.price }}
+                        </div>
+                        <div style="margin-bottom: var(--s-md);">
+                            <label class="text-mono" style="font-size: var(--f-xs); color: var(--m);">Precio Anterior</label>
+                            {{ form.old_price }}
+                        </div>
+                        <div>
+                            <label class="text-mono" style="font-size: var(--f-xs); color: var(--m);">Stock Disponible</label>
+                            {{ form.stock }}
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="section-title">Imagen</h3>
+                        <label class="text-mono" style="font-size: var(--f-xs); color: var(--m);">Archivo de Imagen</label>
+                        {{ form.image }}
+                        {% if form.instance.image %}
+                            <div class="image-preview">
+                                <img src="{{ form.instance.image.url }}" alt="Preview">
+                                <span class="sec-meta" style="font-size: 9px;">Imagen actual</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 4: ATRIBUTOS -->
+            <div class="form-section">
+                <h3 class="section-title">Etiquetas y Estado</h3>
+                <div class="checkbox-group">
+                    <label class="check-item">{{ form.is_new }} Nuevo Lanzamiento</label>
+                    <label class="check-item">{{ form.is_archive }} Segunda Mano</label>
+                    <label class="check-item">{{ form.is_sale }} En Oferta</label>
+                    <label class="check-item" style="color: #4ade80;">{{ form.is_featured }} ¿Destacar en el Hero?</label>
+                </div>
+            </div>
+
+            <div style="margin-top: var(--s-xl);">
+                <button type="submit" class="btn-w" style="width: 100%; padding: 18px; font-size: var(--f-sm);">
+                    Guardar Cambios en el Catálogo
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

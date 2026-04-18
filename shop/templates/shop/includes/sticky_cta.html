@@ -1,7 +1,9 @@
 <div class="sticky-cta">
-  <button class="sticky-top" onclick="scrollTo({top:0,behavior:'smooth'})" title="Ir arriba">↑</button>
-  <button class="sticky-cart" style="position:relative" title="Carrito">
+  <button class="sticky-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Ir arriba">↑</button>
+  <a href="{% url 'shop:cart_detail' %}" class="sticky-cart" style="position:relative; text-decoration: none;" title="Ver Carrito">
     🛒
-    <span class="sticky-count">2</span>
-  </button>
+    <span id="sticky-cart-count" class="sticky-count" style="display: {% if cart|length > 0 %}flex{% else %}none{% endif %};">
+        {{ cart|length }}
+    </span>
+  </a>
 </div>

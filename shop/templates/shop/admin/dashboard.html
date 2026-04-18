@@ -1,0 +1,47 @@
+{% extends 'shop/base.html' %}
+{% block title %}Control — AdanStore{% endblock %}
+
+{% block content %}
+<div class="section reveal">
+    <div class="sec-head">
+        <h2 class="sec-title">Panel de Control</h2>
+        <span class="sec-meta">Resumen de la tienda</span>
+    </div>
+
+    <!-- Estadísticas Principales -->
+    <div class="cat-grid" style="margin-bottom: var(--s-2xl);">
+        <div class="cat-card">
+            <div class="cat-icon-wrap">👥</div>
+            <div>
+                <div class="cat-label">{{ total_users }}</div>
+                <div class="cat-count">Usuarios Registrados</div>
+            </div>
+        </div>
+        <div class="cat-card">
+            <div class="cat-icon-wrap">📦</div>
+            <div>
+                <div class="cat-label">{{ total_products }}</div>
+                <div class="cat-count">Productos en Catálogo</div>
+            </div>
+        </div>
+        <div class="cat-card">
+            <div class="cat-icon-wrap" style="background: {% if pending_orders > 0 %}#ff4a4a{% else %}var(--bg4){% endif %};">📁</div>
+            <div>
+                <div class="cat-label">{{ total_orders }}</div>
+                <div class="cat-count">Ventas Verificadas</div>
+                {% if pending_orders > 0 %}
+                    <div class="text-mono" style="font-size: 9px; color: #ff4a4a; margin-top: 4px;">{{ pending_orders }} PENDIENTES</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Accesos Rápidos -->
+    <div class="hero-btns" style="justify-content: center; margin-bottom: var(--s-3xl);">
+        <a href="{% url 'shop:admin_products_list' %}" class="btn-w">Gestionar Catálogo</a>
+        <a href="{% url 'shop:admin_users_list' %}" class="btn-o">Gestionar Usuarios</a>
+        <a href="{% url 'shop:admin_orders_list' %}" class="btn-o">Historial y Cobros</a>
+        <a href="/admin/" class="btn-o" style="border-color: var(--dim); opacity: 0.8;" target="_blank">Django Admin ↗</a>
+    </div>
+</div>
+{% endblock %}

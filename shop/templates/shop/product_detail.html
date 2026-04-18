@@ -1,0 +1,130 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% load markdown_extras %}
+
+{% block title %}{{ product.name }} — AdanStore{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Forzar que las columnas sean 50/50 exactas y no se muevan */
+    .hero-grid { 
+        display: grid !important; 
+        grid-template-columns: 1fr 1fr !important; 
+        align-items: stretch !important;
+    }
+    /* El bloque de la derecha (hero-left) tiene el borde a la izquierda */
+    .hero-left { border-left: 1px solid var(--line); border-right: none !important; }
+    
+    .hero-left, .hero-right { 
+        min-width: 0; /* Evita que el título largo empuje el ancho de la caja */
+    }
+
+    /* Estilos para renderizado de Markdown */
+    .markdown-content table { width: 100%; border-collapse: collapse; margin: var(--s-md) 0; font-family: var(--mono); font-size: var(--f-xs); }
+    .markdown-content th, .markdown-content td { padding: 12px; border: 1px solid var(--line); text-align: left; }
+    .markdown-content th { background: var(--bg3); color: var(--text); }
+    .markdown-content ul, .markdown-content ol { padding-left: var(--s-lg); margin-bottom: var(--s-md); }
+    .markdown-content li { margin-bottom: var(--s-xs); }
+    .markdown-content h1, .markdown-content h2, .markdown-content h3 { font-family: var(--display); margin-top: var(--s-lg); margin-bottom: var(--s-sm); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="section reveal">
+  <!-- Breadcrumb -->
+  <div style="margin-bottom: var(--s-lg);">
+    <a href="{% url 'shop:index' %}" class="sec-meta" style="border-bottom: 1px solid var(--dim);">Inicio</a>
+    <span class="sec-meta"> / </span>
+    <span class="sec-meta">{{ product.category.name }}</span>
+  </div>
+
+  <div class="hero-grid">
+    <!-- 1. IMAGEN DEL PRODUCTO (AHORA A LA IZQUIERDA) -->
+    <div class="hero-right" style="background: #ffffff !important; display: flex; align-items: center; justify-content: center; padding: var(--s-3xl);">
+      {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-height: 440px; width: auto; object-fit: contain; opacity: 1; filter: none;">
+      {% else %}
+        <img src="https://via.placeholder.com/600x600" alt="Sin imagen">
+      {% endif %}
+    </div>
+
+    <!-- 2. INFO DEL PRODUCTO (AHORA A LA DERECHA) -->
+    <div class="hero-left">
+      <div>
+        <div class="hero-tag">
+          <span class="hero-tag-dot"></span>
+          <span class="hero-tag-text">SKU: {{ product.sku }}</span>
+        </div>
+        <h1 class="hero-h1" style="font-size: clamp(24px, 3.5vw, 48px); line-height: 1.1; overflow-wrap: break-word; word-break: break-word; margin-bottom: var(--s-md);">{{ product.name }}</h1>
+        
+        <div style="display: flex; align-items: baseline; gap: var(--s-md); margin-bottom: var(--s-xl);">
+          <span class="hpi-price" style="font-size: 32px;">S/{{ product.price }}</span>
+          {% if product.old_price %}
+            <span class="prod-old-price" style="font-size: 18px;">S/{{ product.old_price }}</span>
+          {% endif %}
+        </div>
+
+        <p class="hero-sub" style="max-width: 100%;">{{ product.description|linebreaks }}</p>
+      </div>
+
+      <div style="margin-top: var(--s-2xl);">
+        <div class="prod-badges" style="position: static; margin-bottom: var(--s-md);">
+          {% if product.is_new %}<span class="badge badge-new">Nuevo Lanzamiento</span>{% endif %}
+          {% if product.is_archive %}<span class="badge badge-arc">Colección de Archivo</span>{% endif %}
+          <span class="badge" style="border-color: var(--dim); color: var(--m);">Stock: {{ product.stock }} unidades</span>
+        </div>
+
+        <div class="hero-btns">
+          <button class="add-cart" data-id="{{ product.id }}" style="flex: 1; min-width: 200px;">Añadir al Carrito</button>
+          <button class="wish-btn {% if is_in_wishlist %}active{% endif %}" 
+                  id="wishlist-btn" 
+                  data-id="{{ product.id }}"
+                  style="width: 52px; height: 52px; transition: all 0.3s ease;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="{% if is_in_wishlist %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DESCRIPCIÓN DETALLADA (MARKDOWN) -->
+{% if product.detailed_description %}
+<div class="section reveal" style="border-top: 1px solid var(--line); margin-top: var(--s-xl);">
+    <div class="sec-head">
+        <h2 class="sec-title">Especificaciones</h2>
+        <span class="sec-meta">Ficha Técnica</span>
+    </div>
+    <div class="markdown-content" style="max-width: 900px; color: var(--text2); line-height: 1.7;">
+        {{ product.detailed_description|markdown }}
+    </div>
+</div>
+{% endif %}
+
+<!-- Productos Relacionados -->
+{% if related_products %}
+<div class="section reveal">
+  <div class="sec-head">
+    <h2 class="sec-title">Equipos Similares</h2>
+  </div>
+  <div class="prod-grid">
+    {% for p in related_products %}
+    <div class="prod-card">
+      <div class="prod-img">
+        <img src="{{ p.image.url }}" alt="{{ p.name }}">
+        <div class="prod-quick"><a href="{% url 'shop:product_detail' p.slug %}" class="quick-btn">Ver detalle</a></div>
+      </div>
+      <div class="prod-body">
+        <div class="prod-name" style="font-size: 14px; font-weight: 700;">{{ p.name }}</div>
+        <div class="prod-price" style="font-size: 13px; color: var(--text); opacity: 0.8;">S/{{ p.price }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% include 'shop/includes/trust_strip.html' %}
+{% endblock %}

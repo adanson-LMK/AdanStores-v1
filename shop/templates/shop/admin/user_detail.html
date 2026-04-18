@@ -1,0 +1,125 @@
+{% extends 'shop/base.html' %}
+{% block title %}Gestionar Cliente — AdanStore{% endblock %}
+
+{% block content %}
+<div class="section">
+    <div class="sec-head">
+        <div>
+            <h2 class="sec-title">Perfil de Cliente</h2>
+            <p class="sec-meta">{{ target_user.email }} | ID: #{{ target_user.id }}</p>
+        </div>
+        <div style="display: flex; gap: var(--s-md);">
+            <a href="{% url 'shop:admin_assign_product' target_user.id %}" class="btn-w" style="padding: 10px 20px; font-size: 11px;">+ Asignar Nuevo Equipo</a>
+            <a href="{% url 'shop:admin_users_list' %}" class="see-all">← Volver a Lista</a>
+        </div>
+    </div>
+
+    <!-- RESUMEN COMERCIAL -->
+    <div class="cat-grid" style="grid-template-columns: 1fr 1fr 1fr; margin-bottom: var(--s-3xl);">
+        <div class="cat-card">
+            <div class="cat-icon-wrap">📅</div>
+            <div>
+                <div class="cat-label">{{ target_user.date_joined|date:"d/m/Y" }}</div>
+                <div class="cat-count">Fecha de Registro</div>
+            </div>
+        </div>
+        <div class="cat-card">
+            <div class="cat-icon-wrap">🛍️</div>
+            <div>
+                <div class="cat-label">{{ target_user.orders.count }}</div>
+                <div class="cat-count">Pedidos Totales</div>
+            </div>
+        </div>
+        <div class="cat-card">
+            <div class="cat-icon-wrap">💰</div>
+            <div>
+                <div class="cat-label">S/{{ total_spent }}</div>
+                <div class="cat-count">Inversión Verificada</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HISTORIAL GRUPAL -->
+    <div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--line); margin-bottom: var(--s-lg); padding-bottom: 12px;">
+        <h3 class="text-display" style="font-size: var(--f-md);">Historial de Pedidos</h3>
+        <div style="display: flex; gap: 8px;">
+            <a href="?" class="sec-meta" style="{% if not current_status %}color: var(--text); font-weight: 700;{% endif %}">Todos</a>
+            <span style="color: var(--line);">|</span>
+            <a href="?status=PENDING" class="sec-meta" style="{% if current_status == 'PENDING' %}color: #ffb100; font-weight: 700;{% endif %}">Pendientes</a>
+            <span style="color: var(--line);">|</span>
+            <a href="?status=COMPLETED" class="sec-meta" style="{% if current_status == 'COMPLETED' %}color: #4ade80; font-weight: 700;{% endif %}">Verificados</a>
+            <span style="color: var(--line);">|</span>
+            <a href="?status=REJECTED" class="sec-meta" style="{% if current_status == 'REJECTED' %}color: #ff4a4a; font-weight: 700;{% endif %}">Rechazados</a>
+        </div>
+    </div>
+    
+    <div class="faq-list">
+        {% for o in orders %}
+        <div class="faq-item" style="padding: 32px; margin-bottom: 1px; opacity: {% if o.status == 'CANCELLED' %}0.5{% else %}1{% endif %};">
+            
+            <div style="display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 40px; align-items: start;">
+                
+                <!-- COLUMNA 1: INFO Y PRODUCTOS -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <span class="text-mono" style="font-size: var(--f-sm); font-weight: 700;">PEDIDO #{{ o.id }}</span>
+                        {% if o.status == 'PENDING' %}<span class="badge" style="border-color: #ffb100; color: #ffb100;">PENDIENTE</span>
+                        {% elif o.status == 'COMPLETED' %}<span class="badge" style="border-color: #4ade80; color: #4ade80;">VERIFICADO</span>
+                        {% elif o.status == 'REJECTED' %}<span class="badge" style="border-color: #ff4a4a; color: #ff4a4a;">RECHAZADO</span>
+                        {% endif %}
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        {% for item in o.items.all %}
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg2); padding: 8px 12px; border-radius: 4px;">
+                            <span class="text-mono" style="font-size: 11px;">{{ item.quantity }}x {{ item.product.name }}</span>
+                            <span class="text-mono">S/{{ item.price }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-display" style="font-size: var(--f-md); font-weight: 800; margin-top: 16px; text-align: right;">TOTAL: S/{{ o.total_amount }}</div>
+                </div>
+
+                <!-- COLUMNA 2: COMPROBANTE -->
+                <div>
+                    <p class="sec-meta" style="font-size: 9px; margin-bottom: 12px;">COMPROBANTE</p>
+                    {% if o.payment_proof %}
+                        <a href="{{ o.payment_proof.url }}" target="_blank" style="display: block; width: fit-content;">
+                            <img src="{{ o.payment_proof.url }}" style="width: 120px; height: 160px; object-fit: cover; border-radius: var(--r); border: 1px solid var(--line); background: #000;">
+                        </a>
+                        <p class="sec-meta" style="font-size: 8px; margin-top: 8px;">Método: {{ o.get_payment_method_display }}</p>
+                    {% else %}
+                        <div style="width: 120px; height: 160px; background: var(--bg2); border: 1px dashed var(--line); border-radius: var(--r); display: flex; align-items: center; justify-content: center; text-align: center; padding: 10px;">
+                            <p class="sec-meta" style="font-size: 9px;">Sin captura adjunta</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- COLUMNA 3: ACCIONES -->
+                <div style="text-align: right;">
+                    <p class="sec-meta" style="font-size: 9px; margin-bottom: 12px;">GESTIÓN</p>
+                    {% if o.status == 'PENDING' %}
+                        <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-end;">
+                            <a href="{% url 'shop:admin_order_complete' o.pk %}" class="btn-w" style="padding: 10px 20px; font-size: 10px;">Aprobar</a>
+                            <a href="{% url 'shop:admin_order_reject' o.pk %}" class="btn-o" style="padding: 8px 16px; font-size: 9px; border-color: #ffb100; color: #ffb100;">Pedir Reintento</a>
+                            <a href="{% url 'shop:admin_order_cancel' o.pk %}" class="btn-o" style="padding: 8px 16px; font-size: 9px; border-color: #ff4a4a; color: #ff4a4a;" onclick="return confirm('¿Anular permanentemente?')">Anular</a>
+                        </div>
+                    {% elif o.status == 'REJECTED' %}
+                        <p class="text-mono" style="font-size: 10px; color: #ffb100; margin-bottom: 12px;">Esperando nuevo comprobante...</p>
+                        <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-end;">
+                            <a href="{% url 'shop:admin_order_complete' o.pk %}" class="btn-w" style="padding: 10px 20px; font-size: 10px;">Aprobar Actual</a>
+                            <a href="{% url 'shop:admin_order_cancel' o.pk %}" class="btn-o" style="padding: 8px 16px; font-size: 9px; border-color: #ff4a4a; color: #ff4a4a;">Anular Pedido</a>
+                        </div>
+                    {% elif o.status == 'COMPLETED' %}
+                        <p class="text-mono" style="font-size: 11px; color: #4ade80;">✓ PROCESADO</p>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+        {% empty %}
+        <p class="nl-sub" style="padding: 40px; text-align: center;">Sin actividad con estos filtros.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

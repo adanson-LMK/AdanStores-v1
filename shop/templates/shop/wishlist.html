@@ -1,0 +1,57 @@
+{% extends 'shop/base.html' %}
+{% block title %}Favoritos — AdanStore{% endblock %}
+
+{% block content %}
+<div class="section reveal">
+    <div class="sec-head">
+        <h2 class="sec-title">Mis Favoritos</h2>
+        <span class="sec-meta">{{ wishlist_items.count }} Guardados</span>
+    </div>
+
+    <div class="prod-grid">
+        {% for item in wishlist_items %}
+        <div class="prod-card" id="wishlist-item-{{ item.product.id }}">
+            <div class="prod-img">
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                <div class="prod-quick">
+                    <a href="{% url 'shop:product_detail' item.product.slug %}" class="quick-btn">Ver Producto</a>
+                </div>
+            </div>
+            <div class="prod-body">
+                <div class="prod-top">
+                    <a href="{% url 'shop:product_detail' item.product.slug %}" class="prod-name">{{ item.product.name }}</a>
+                    <div class="prod-price">S/{{ item.product.price }}</div>
+                </div>
+                <button class="see-all" 
+                        onclick="removeFromWishlist({{ item.product.id }})" 
+                        style="border: none; background: none; cursor: pointer; margin-top: 10px; color: #ff4a4a;">
+                    Eliminar de la lista
+                </button>
+            </div>
+        </div>
+        {% empty %}
+        <div class="newsletter" style="grid-column: 1 / -1; text-align: center; flex-direction: column;">
+            <p class="nl-title">Tu lista está vacía</p>
+            <p class="nl-sub">Guarda los equipos que más te gusten para verlos aquí más tarde.</p>
+            <a href="{% url 'shop:product_list' %}" class="btn-w" style="margin-top: 20px;">Explorar Tienda</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+function removeFromWishlist(productId) {
+    fetch(`/wishlist/toggle/${productId}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.action === 'removed') {
+            document.getElementById(`wishlist-item-${productId}`).remove();
+            // Actualizar contador global si lo necesitas
+        }
+    });
+}
+</script>
+{% endblock %}

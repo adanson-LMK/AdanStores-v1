@@ -1,0 +1,90 @@
+{% extends 'shop/base.html' %}
+{% block title %}Historial — AdanStore{% endblock %}
+
+{% block content %}
+<div class="section">
+    <div class="sec-head">
+        <h2 class="sec-title">Control de Pedidos</h2>
+        <a href="{% url 'shop:admin_dashboard' %}" class="see-all">← Volver al Panel</a>
+    </div>
+
+    <!-- FILTROS DE ESTADO -->
+    <div style="display: flex; gap: 12px; margin-bottom: var(--s-2xl); border-bottom: 1px solid var(--line); padding-bottom: var(--s-lg);">
+        <a href="?" class="btn-o" style="padding: 10px 20px; font-size: 11px; {% if not current_status %}background: var(--bg3); border-color: var(--text);{% endif %}">Todos</a>
+        <a href="?status=PENDING" class="btn-o" style="padding: 10px 20px; font-size: 11px; {% if current_status == 'PENDING' %}background: var(--bg3); border-color: #ffb100; color: #ffb100;{% endif %}">Pendientes</a>
+        <a href="?status=COMPLETED" class="btn-o" style="padding: 10px 20px; font-size: 11px; {% if current_status == 'COMPLETED' %}background: var(--bg3); border-color: #4ade80; color: #4ade80;{% endif %}">Verificados</a>
+        <a href="?status=CANCELLED" class="btn-o" style="padding: 10px 20px; font-size: 11px; {% if current_status == 'CANCELLED' %}background: var(--bg3); border-color: #ff4a4a; color: #ff4a4a;{% endif %}">Cancelados</a>
+    </div>
+
+    <div class="faq-list">
+        {% for o in orders %}
+        <div class="faq-item" style="padding: 32px; border-bottom: 1px solid var(--line); opacity: {% if o.status == 'CANCELLED' or o.status == 'REJECTED' %}0.7{% else %}1{% endif %};">
+            
+            <div style="display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 40px; align-items: start;">
+                
+                <!-- COLUMNA 1: INFO Y PRODUCTOS -->
+                <div>
+                    <p class="sec-meta" style="font-size: 9px; margin-bottom: 8px;">IDENTIFICACIÓN</p>
+                    <div class="text-display" style="font-size: var(--f-sm); font-weight: 800;">{{ o.user.email }}</div>
+                    <p class="text-mono" style="font-size: 10px; color: var(--dim); margin-top: 4px;">ID: #{{ o.user.id }} | Pedido #{{ o.id }}</p>
+                    
+                    <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+                        {% for item in o.items.all %}
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--m);">
+                            <span class="text-mono">{{ item.quantity }}x {{ item.product.name }}</span>
+                            <span class="text-mono">S/{{ item.price }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-display" style="font-size: var(--f-md); font-weight: 800; margin-top: 12px; text-align: right;">S/{{ o.total_amount }}</div>
+                </div>
+
+                <!-- COLUMNA 2: COMPROBANTE -->
+                <div>
+                    <p class="sec-meta" style="font-size: 9px; margin-bottom: 12px;">PAGO / COMPROBANTE</p>
+                    {% if o.payment_proof %}
+                        <a href="{{ o.payment_proof.url }}" target="_blank">
+                            <img src="{{ o.payment_proof.url }}" style="width: 100px; height: 130px; object-fit: cover; border-radius: var(--r); border: 1px solid var(--line); background: #000;">
+                        </a>
+                        <p class="sec-meta" style="font-size: 8px; margin-top: 8px;">{{ o.get_payment_method_display }} ↗</p>
+                    {% else %}
+                        <div style="width: 100px; height: 130px; background: var(--bg2); border: 1px dashed var(--line); border-radius: var(--r); display: flex; align-items: center; justify-content: center; text-align: center; padding: 10px;">
+                            <p class="sec-meta" style="font-size: 9px;">Sin captura</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- COLUMNA 3: ACCIONES -->
+                <div style="text-align: right;">
+                    <p class="sec-meta" style="font-size: 9px; margin-bottom: 12px;">GESTIÓN</p>
+                    
+                    {% if o.status == 'PENDING' %}
+                        <div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-end;">
+                            <a href="{% url 'shop:admin_order_complete' o.pk %}" class="btn-w" style="padding: 12px 20px; font-size: 10px;">Verificar Pago</a>
+                            <a href="{% url 'shop:admin_order_reject' o.pk %}" class="btn-o" style="padding: 8px 16px; font-size: 9px; border-color: #ffb100; color: #ffb100;">Rechazar</a>
+                            <a href="{% url 'shop:admin_order_cancel' o.pk %}" class="btn-o" style="padding: 8px 16px; font-size: 9px; border-color: #ff4a4a; color: #ff4a4a;" onclick="return confirm('¿Anular pedido y devolver stock?')">Anular</a>
+                        </div>
+                    {% elif o.status == 'COMPLETED' %}
+                        <div style="color: #4ade80; font-family: var(--mono); font-size: 11px; font-weight: 700;">✓ VERIFICADO</div>
+                        <p class="sec-meta" style="font-size: 8px; margin-top: 8px;">Propiedad del cliente</p>
+                    {% elif o.status == 'REJECTED' %}
+                        <div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-end;">
+                            <div style="color: #ffb100; font-family: var(--mono); font-size: 10px;">ESPERANDO REINTENTO</div>
+                            <a href="{% url 'shop:admin_order_delete' o.pk %}" class="see-all" style="color: #ff4a4a; border-color: #ff4a4a; font-size: 10px;" onclick="return confirm('¿Borrar registro permanentemente?')">Borrar Registro</a>
+                        </div>
+                    {% else %}
+                        <div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-end;">
+                            <div style="color: var(--dim); font-family: var(--mono); font-size: 11px;">ANULADO</div>
+                            <a href="{% url 'shop:admin_order_delete' o.pk %}" class="see-all" style="color: #ff4a4a; border-color: #ff4a4a; font-size: 10px;" onclick="return confirm('¿Borrar registro permanentemente?')">Borrar Registro</a>
+                        </div>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+        {% empty %}
+        <p class="nl-sub" style="padding: 40px; text-align: center;">Sin pedidos con este estado.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

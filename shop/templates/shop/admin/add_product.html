@@ -1,0 +1,25 @@
+{% extends 'shop/base.html' %}
+{% block title %}Nuevo Producto — AdanStore{% endblock %}
+
+{% block content %}
+<div class="section flex-center">
+    <div class="newsletter" style="max-width: 600px; width: 100%; flex-direction: column;">
+        <div class="nl-tag text-mono">Catálogo</div>
+        <h2 class="nl-title">Añadir Nuevo Producto</h2>
+        
+        <form method="POST" enctype="multipart/form-data" class="nl-form" style="flex-direction: column; width: 100%; gap: var(--s-md); margin-top: var(--s-lg);">
+            {% csrf_token %}
+            {% for field in form %}
+                <div style="text-align: left; width: 100%;">
+                    <label class="text-mono" style="font-size: var(--f-xs); color: var(--m);">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <p style="color: #ff4a4a; font-size: var(--f-xs);">{{ field.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="nl-btn" style="width: 100%; margin-top: var(--s-md);">Guardar Producto</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

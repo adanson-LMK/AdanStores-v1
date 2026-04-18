@@ -1,0 +1,100 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block title %}Mi Archivo — AdanStore{% endblock %}
+
+{% block content %}
+<div class="section reveal">
+    <div class="sec-head">
+        <div>
+            <h2 class="sec-title">Mi Archivo</h2>
+            <div style="display: flex; gap: var(--s-md); align-items: center; margin-top: 4px;">
+                <p class="sec-meta">{{ user.email }}</p>
+                <span style="color: var(--line);">|</span>
+                <p class="text-mono" style="font-size: var(--f-xs); color: var(--text3);">CLIENTE_ID: #{{ user.id }}</p>
+            </div>
+        </div>
+        <a href="{% url 'shop:logout' %}" class="see-all">Cerrar Sesión</a>
+    </div>
+
+    <div style="margin-bottom: var(--s-2xl);">
+        <h3 class="text-display" style="font-size: var(--f-lg); margin-bottom: var(--s-md);">Historial de Adquisiciones</h3>
+        <p class="nl-sub">Aquí puedes ver el estado de tus pedidos y tu colección oficial.</p>
+    </div>
+
+    {% for order in orders %}
+    <div class="form-section" style="margin-bottom: var(--s-xl); border: 1px solid var(--line); background: var(--bg2); padding: 24px; border-radius: var(--r); {% if order.status == 'REJECTED' %}border-color: #ffb100;{% endif %}">
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 20px;">
+            <div>
+                <span class="text-mono" style="font-size: var(--f-sm); font-weight: 700;">PEDIDO #{{ order.id }}</span>
+                <span class="sec-meta" style="font-size: var(--f-xs); margin-left: 12px;">{{ order.created|date:"d M, Y" }}</span>
+            </div>
+            <div>
+                {% if order.status == 'PENDING' %}
+                    <span class="badge" style="border-color: #ffb100; color: #ffb100;">VERIFICANDO PAGO...</span>
+                {% elif order.status == 'COMPLETED' %}
+                    <span class="badge" style="border-color: #4ade80; color: #4ade80;">PROPIEDAD VERIFICADA</span>
+                {% elif order.status == 'REJECTED' %}
+                    <span class="badge" style="border-color: #ff4a4a; color: #ff4a4a; background: rgba(255,74,74,0.1);">COMPROBANTE INVÁLIDO</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 150px; gap: 24px; align-items: start;">
+            <!-- Info del pedido -->
+            <div>
+                <div class="prod-grid" style="grid-template-columns: 1fr; gap: 12px; border: none;">
+                    {% for item in order.items.all %}
+                    <div style="display: flex; gap: 16px; background: var(--bg3); padding: 12px; border-radius: var(--r); align-items: center;">
+                        <img src="{{ item.product.image.url }}" style="width: 50px; height: 50px; object-fit: contain; background: white; border-radius: 4px;">
+                        <div>
+                            <div class="text-display" style="font-size: var(--f-sm);">{{ item.product.name }}</div>
+                            <div class="text-mono" style="font-size: 10px; color: var(--dim);">SKU: {{ item.product.sku }} | S/{{ item.price }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div style="margin-top: 16px; text-align: right;">
+                    <span class="text-mono" style="font-size: var(--f-sm); color: var(--m);">Total:</span>
+                    <span class="text-display" style="font-size: var(--f-md); font-weight: 800; margin-left: 12px;">S/{{ order.total_amount }}</span>
+                </div>
+            </div>
+
+            <!-- Visualización del comprobante para el usuario -->
+            <div style="text-align: center;">
+                <p class="sec-meta" style="font-size: 8px; margin-bottom: 8px; text-transform: uppercase;">Tu Comprobante</p>
+                {% if order.payment_proof %}
+                    <a href="{{ order.payment_proof.url }}" target="_blank">
+                        <img src="{{ order.payment_proof.url }}" style="width: 100%; height: 140px; object-fit: cover; border-radius: var(--r); border: 1px solid var(--line); filter: brightness(0.8);">
+                    </a>
+                    <p class="sec-meta" style="font-size: 8px; margin-top: 4px;">Clic para ver ↗</p>
+                {% else %}
+                    <div style="height: 140px; background: var(--bg3); border: 1px dashed var(--line); border-radius: var(--r); display: flex; align-items: center; justify-content: center; padding: 10px;">
+                        <p class="sec-meta" style="font-size: 8px;">Sin captura (WSP)</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if order.status == 'REJECTED' %}
+        <div style="margin-top: 24px; padding: 20px; background: rgba(255,177,0,0.05); border: 1px solid #ffb100; border-radius: var(--r); display: flex; justify-content: space-between; align-items: center;">
+            <p class="text-mono" style="font-size: var(--f-xs); color: #ffb100; max-width: 60%;">Hubo un problema con tu comprobante. Por favor, sube una captura clara para procesar tu pedido.</p>
+            <a href="{% url 'shop:reupload_proof' order.id %}" class="btn-w" style="background: #ffb100; color: #000; font-size: 11px;">Reenviar Comprobante</a>
+        </div>
+        {% endif %}
+
+        {% if order.notes and order.status == 'COMPLETED' %}
+        <div style="margin-top: 20px; padding: 12px; border-left: 2px solid var(--text); background: var(--bg3); font-size: var(--f-xs); color: var(--m);">
+            <strong>Notas del Archivo:</strong> {{ order.notes }}
+        </div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <div class="newsletter" style="text-align: center; flex-direction: column;">
+        <p class="nl-title">Tu archivo está vacío</p>
+        <p class="nl-sub">Tus adquisiciones aparecerán aquí una vez verificadas.</p>
+        <a href="{% url 'shop:product_list' %}" class="btn-w" style="margin-top: var(--s-md);">Explorar Colección</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block title %}Crear Cuenta — AdanStore{% endblock %}
+
+{% block content %}
+<div class="section flex-center" style="min-height: 70vh;">
+    <div class="newsletter" style="max-width: 500px; width: 100%; flex-direction: column; text-align: center;">
+        <div class="nl-tag text-mono">Registro</div>
+        <h2 class="nl-title">Únete al archivo</h2>
+        <p class="nl-sub" style="margin-bottom: var(--s-lg);">Solo necesitas un correo y una contraseña para empezar.</p>
+        
+        <form method="POST" class="nl-form" style="flex-direction: column; width: 100%; max-width: none; gap: var(--s-md);">
+            {% csrf_token %}
+            {{ form.email }}
+            {{ form.password }}
+            {% if form.errors %}
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <p style="color: #ff4a4a; font-size: var(--f-xs); font-family: var(--mono);">{{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+            {% endif %}
+            <button type="submit" class="nl-btn" style="width: 100%;">Crear Cuenta</button>
+        </form>
+        
+        <div style="margin-top: var(--s-lg);">
+            <p class="nl-sub">¿Ya tienes cuenta? <a href="{% url 'shop:login' %}" style="color: var(--text); text-decoration: underline;">Inicia sesión</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
