@@ -281,3 +281,9 @@ def admin_order_delete(request, pk):
         for item in order.items.all(): item.product.stock += item.quantity; item.product.save()
     order.delete()
     return redirect(request.META.get('HTTP_REFERER', 'shop:admin_orders_list'))
+
+def handler404(request, exception):
+    return render(request, 'shop/404.html', status=404)
+
+def handler500(request):
+    return render(request, 'shop/500.html', status=500)

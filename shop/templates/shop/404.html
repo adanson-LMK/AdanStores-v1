@@ -1,0 +1,20 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block title %}404 — Página No Encontrada | AdanStore{% endblock %}
+
+{% block content %}
+<section class="error-page" style="padding: 100px 20px; text-align: center; min-height: 70vh; display: flex; align-items: center; justify-content: center;">
+    <div class="container">
+        <h1 style="font-family: 'Syne', sans-serif; font-size: clamp(8rem, 20vw, 15rem); line-height: 1; margin: 0; color: var(--accent); opacity: 0.2;">404</h1>
+        <div style="margin-top: -50px;">
+            <h2 style="font-size: 2rem; margin-bottom: 1rem;">¡Ups! Te has perdido en el archivo.</h2>
+            <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto 2rem;">La página que buscas no existe o ha sido movida. No te preocupes, el inventario principal sigue disponible.</p>
+            <a href="{% url 'shop:product_list' %}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 10px;">
+                <span>Volver a la tienda</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
