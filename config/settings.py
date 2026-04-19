@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-# Permitir todos los hosts en DigitalOcean
+# Permitir todos los hosts en producción
 ALLOWED_HOSTS = ['*']
 
 # Application definition
@@ -73,25 +73,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
-# Por defecto usamos SQLite (Seguro para el Build Phase)
+# Configuración definitiva y limpia para Supabase o Local
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        conn_max_age=600,
+        ssl_require=False
+    )
 }
-
-# Solo sobreescribimos si hay una DATABASE_URL real y válida
-_db_env = os.getenv('DATABASE_URL', '').strip()
-if _db_env and '://' in _db_env:
-    try:
-        DATABASES['default'] = dj_database_url.parse(_db_env, conn_max_age=600, ssl_require=False)
-        # Forzar el uso del esquema propio para evitar errores de permisos en DigitalOcean
-        DATABASES['default']['OPTIONS'] = {
-            'options': '-c search_path=adanstore_schema,public'
-        }
-    except Exception:
-        pass
 
 # CSRF Trusted Origins - Patrón comodín para DigitalOcean
 CSRF_TRUSTED_ORIGINS = [
